@@ -39,7 +39,7 @@ namespace :deploy do
     DESC
     task :disable do
     end
-    
+
     desc <<-DESC
       Remove the html file so that the application is reachable
     DESC
@@ -47,11 +47,11 @@ namespace :deploy do
     end
   end
   # End of namespace :deploy:web
-  
+
 end
 
 namespace :capez do
-  
+
   # TODO : cache management must be aware of cluster setup
   namespace :cache do
     desc <<-DESC
@@ -64,7 +64,7 @@ namespace :capez do
       cache_list.each { |cache_tag| capture "cd #{current_path} && php bin/php/ezcache.php --clear-tag=#{cache_tag}" }
     end
   end
-  
+
   namespace :var do
     desc <<-DESC
       Link .../shared/var into ../releases/[latest_release]/var
@@ -72,7 +72,7 @@ namespace :capez do
     task :link, :roles => :web do
       run "ln -s #{shared_path}/var #{latest_release}/var"
     end
-    
+
     desc <<-DESC
       Set the right permissions in var/
     DESC
@@ -81,10 +81,10 @@ namespace :capez do
       sudo "chgrp -h #{apache_group} #{current_path}/var"
       sudo "chmod -R g+w #{shared_path}/var"
     end
-    
+
   end
   # End of namespace :capez:var
-  
+
   # TODO : cache management must be aware of cluster setup  namespace :autoloads do
   namespace :autoloads do
     desc <<-DESC
