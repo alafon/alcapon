@@ -8,9 +8,6 @@ set :apache_group, "www-data"
 # Requires a specific rewrite rule (see documentation)
 set :always_turnoff, false
 
-# Can be false, "dbfs" or "dfs"
-set :cluster_setup, false
-
 # Array taking all the values given by php bin/php/ezcache.php --list-tags
 #
 # If you want to clear all caches use :
