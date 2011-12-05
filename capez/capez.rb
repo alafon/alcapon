@@ -52,16 +52,15 @@ end
 
 namespace :capez do
 
-  # TODO : cache management must be aware of cluster setup
   namespace :cache do
     desc <<-DESC
       Clear caches the way it is configured in ezpublish.rb
     DESC
-    task :clear, :roles => :web  do
+    task :clear, :roles => :web, :only => { :primary => true } do
       on_rollback do
         clear
       end
-      cache_list.each { |cache_tag| capture "cd #{current_path} && php bin/php/ezcache.php --clear-tag=#{cache_tag}" }
+      cache_list.each { |cache_tag| capture "cd #{current_path} && php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}" }
     end
   end
 
