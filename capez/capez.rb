@@ -77,9 +77,10 @@ namespace :capez do
       Set the right permissions in var/
     DESC
     task :fix_permissions do
-      sudo "chgrp -R #{apache_group} #{shared_path}/var"
-      sudo "chgrp -h #{apache_group} #{current_path}/var"
-      sudo "chmod -R g+w #{shared_path}/var"
+      # We need to fix user and group permissions since eZ Publish wants to chmod 0666...
+      sudo "chown -R #{apache_group}:#{apache_group} #{shared_path}/var/"
+      sudo "chown -h #{apache_group}:#{apache_group} #{current_path}/var"
+      sudo "chmod -R g+w #{shared_path}/var/"
     end
 
   end
