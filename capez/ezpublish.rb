@@ -12,7 +12,7 @@ set :always_turnoff, false
 #
 # If you want to clear all caches use :
 # set :cache_list, "all"
-set :cache_list, [ "template", "ini" ]
+set :cache_list, [ "template", "ini", "content" ]
 
 # If true, adds '--purge' to the ezcache.php command
 set :cache_purge, false
@@ -21,6 +21,10 @@ set :cache_purge, false
 # kernel-override autoloads
 # Possible values : see bin/php/ezpgenerateautoloads.php --help
 set :autoload_list, [ "extension", "kernel-override" ]
+
+set :database_uname, "user"
+set :database_passd, "password"
+set :database_name, "db"
 
 # Not implemented
 set :ezpublish_separated_core, false
