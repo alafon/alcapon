@@ -5,7 +5,7 @@ set :group_writable, true
 after "deploy:setup", :roles => :web do
   # If :deploy_to is something like /var/www then deploy:setup created
   # directories with sudo and we need to fix it
-  sudo "chown -R #{apache_user}:#{apache_group} #{deploy_to}"
+  sudo "chown -R #{user}:#{apache_group} #{deploy_to}"
   run "mkdir #{shared_path}/var"
 end
 
