@@ -1,0 +1,191 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'fileutils'
+
+alcapon_path  = 'extension/alcapon'
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{File.basename($0)} [path]"
+
+  opts.on("-h", "--help", "Displays this help info") do
+    puts opts
+    exit 0
+  end
+
+  begin
+    opts.parse!(ARGV)
+  rescue OptionParser::ParseError => e
+    warn e.message
+    puts opts
+    exit 1
+  end
+end
+
+if ARGV.empty?
+  abort "Please specify the directory to capifony, e.g. `#{File.basename($0)} .'"
+elsif !File.exists?(ARGV.first)
+  abort "`#{ARGV.first}' does not exist."
+elsif !File.directory?(ARGV.first)
+  abort "`#{ARGV.first}' is not a directory."
+elsif ARGV.length > 1
+  abort "Too many arguments; please specify only the directory to capify."
+end
+
+def unindent(string)
+  indentation = string[/\A\s*/]
+  string.strip.gsub(/^#{indentation}/, "")
+end
+
+files = {
+  "Capfile" => unindent(<<-FILE),
+    load 'deploy' if respond_to?(:namespace) # cap2 differentiator
+    Dir['vendor/gems/*/recipes/*.rb','vendor/plugins/*/recipes/*.rb'].each { |plugin| load(plugin) }
+
+    Dir['#{alcapon_path}/lib/*.rb'].each { |recipe| load(recipe) }
+
+    set :stage_dir, '#{alcapon_path}/config/deploy'
+    Dir['#{alcapon_path}/config/*.rb'].each { |recipe| load(recipe) }
+  FILE
+
+  "#{alcapon_path}/config/deploy.rb" => unindent(<<-FILE),
+    # Comment this if you don't want to use a multistage setup
+    set :stages, %w(devel production )
+    set :default_stage, "devel"
+    require 'capistrano/ext/multistage'
+
+    set :application, "myapp"
+    set :repository,  "git@github.com:username/myapp.git"
+
+    set :deploy_to, "/var/www/\#{application}"
+    # The user connecting your server through ssh
+    set :user, "deploy"
+
+    # The default branch used (can be overridden on multistage setup)
+    set :branch, "master"
+
+    # Need if you want to deploy somewhere where sudo is needed
+    default_run_options[:pty] = true
+
+    # Use this to use your ssh keys
+    # (you might need to run ssh-add /path/to/your/deploy_key before)
+    ssh_options[:forward_agent] = true
+    # Or if you want to use a specific key
+    #ssh_options[:keys] = %w(/home/username/.ssh/id_rsa)
+
+    # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
+    set :scm, :git
+
+    # Comment this if you don't use submodules
+    set :git_enable_submodules, 1
+
+    # Prevents you from cloning the whole rep. each deploy but your remote servers
+    # must be able to get connected to your scm server
+    set :deploy_via, :remote_cache
+
+    # Your Primary HTTP server
+    # (Use config/deploy/*.rb files instead if you need a multisage setup)
+    role :web, "domain.com", :primary => true
+    # Another HTTP server, for instanced when using a clustered mode
+    #role :web, "server2"
+
+    #role :db,  "your primary db-server here", :primary => true # This is where Rails migrations will run
+    #role :db,  "your slave db-server here"
+  FILE
+
+  "#{alcapon_path}/config/ezpublish.rb" => unindent(<<-FILE),
+    # This file contains eZ Publish adjustable variables depending on your custom setup
+
+    # Your webserver user and group, used to chmod directories just after deploy:setup
+    set :webserver_user, "apache"
+    set :webserver_group, "apache"
+
+    # If true, will always turn your webserver offline
+    # Requires a specific rewrite rule (see documentation)
+    set :always_turnoff, false
+
+    # Array taking all the values given by php bin/php/ezcache.php --list-tags
+    #
+    # If you want to clear all caches use :
+    #set :cache_list, "all"
+    set :cache_list, [ "template", "ini", "content" ]
+
+    # If true, adds '--purge' to the ezcache.php command
+    set :cache_purge, false
+
+    # Which autoloads to generate. By default, regenerates extensions and
+    # kernel-override autoloads
+    # Possible values : see bin/php/ezpgenerateautoloads.php --help
+    set :autoload_list, [ "extension", "kernel-override" ]
+
+    # TODO : use yml files to manage database credentials securely
+    # See http://www.simonecarletti.com/blog/2009/06/capistrano-and-database-yml/
+    set :database_uname, "dbuname"
+    set :database_passd, "dbpasswd"
+    set :database_name, "dbname"
+
+    # Not implemented
+    set :ezpublish_separated_core, false
+    set :ezpublish_base, "community"
+    set :ezpublish_version, "2012.5"
+
+    # Check-list (used by cap setup:check)
+    depend :remote, :command, "php"
+    depend :remote, :match, "php -r \"echo(version_compare(PHP_VERSION,'5.2.14')?'ok':'ko');\"", "ok"
+    depend :remote, :match, "php -m | grep curl", "curl"
+
+    # TODO
+    #Check : PHP memory_limit >= 128
+    #Check : PHP date.imezone = "something"
+    #Check : eZ Components (must be bundled if eZ Publish >= 20??.? since there's a patch for Archive)
+    #Check : If deploy_via remote_cache => check of the remote servers have access to the scm
+  FILE
+
+  "#{alcapon_path}/config/deploy/devel.rb" => unindent(<<-FILE),
+    # There you can override default settings for this specific environment
+
+    set :branch, "dev"
+    #role :web, "myapp.devserv", :primary => true           # Your Primary HTTP server
+
+    # If you need sudo commands to be run with -u sudouser
+    #set :admin_runner, "sudouser"
+
+    # This is used for by permissions related tasks
+    #set :webserver_user, "www-data"
+    #set :webserver_group, "www-data"
+  FILE
+
+  "#{alcapon_path}/config/deploy/production.rb" => unindent(<<-FILE)
+    # There you can override default settings for this specific environment
+
+    set :branch, "master"
+    #role :web, "domain.com", :primary => true           # Your Primary HTTP server
+
+    # If you need sudo commands to be run with -u sudouser
+    #set :admin_runner, "sudouser"
+
+    # This is used for by permissions related tasks
+    #set :webserver_user, "apache"
+    #set :webserver_group, "apache"
+  FILE
+  }
+
+base = ARGV.shift
+
+files.each do |file, content|
+  file = File.join(base, file)
+  if File.exists?(file)
+    warn "[skip] '#{file}' already exists"
+  elsif File.exists?(file.downcase)
+    warn "[skip] '#{file.downcase}' exists, which could conflict with `#{file}'"
+  else
+    unless File.exists?(File.dirname(file))
+      puts "[add] making directory '#{File.dirname(file)}'"
+      FileUtils.mkdir(File.dirname(file))
+    end
+    puts "[add] writing '#{file}'"
+    File.open(file, "w") { |f| f.write(content) }
+  end
+end
+
+puts "[done] Your eZ Publish project is now controlled by AlCapON !"

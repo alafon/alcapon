@@ -5,13 +5,14 @@ set :group_writable, true
 after "deploy:setup", :roles => :web do
   # If :deploy_to is something like /var/www then deploy:setup created
   # directories with sudo and we need to fix it
-  sudo "chown -R #{user}:#{apache_group} #{deploy_to}"
+  run "#{try_sudo} chown -R #{user} #{deploy_to}"
+  run "#{try_sudo} chgrp -R #{webserver_group} #{deploy_to}"
   run "mkdir #{shared_path}/var"
 end
 
 after "deploy:update", :roles => :web do
-  capez.cache.clear
   capez.autoloads.generate
+  capez.cache.clear
   capez.var.fix_permissions
 end
 
@@ -57,6 +58,9 @@ namespace :capez do
     desc <<-DESC
       Clear caches the way it is configured in ezpublish.rb
     DESC
+    # Caches are just cleared for the primary server
+    # Multiple server platform are supposed to use a cluster configuration (eZDFS/eZDBFS)
+    # and cache management is done via expiry.php which is managed by the cluster API
     task :clear, :roles => :web, :only => { :primary => true } do
       on_rollback do
         clear
@@ -78,9 +82,9 @@ namespace :capez do
     DESC
     task :fix_permissions do
       # We need to fix user and group permissions since eZ Publish wants to chmod 0666...
-      sudo "chown -R #{apache_group}:#{apache_group} #{shared_path}/var/"
-      sudo "chown -h #{apache_group}:#{apache_group} #{current_path}/var"
-      sudo "chmod -R g+w #{shared_path}/var/"
+      #run "#{try_sudo} chown -h #{webserver_user}:#{webserver_group} #{current_path}/var"
+      #run "#{try_sudo} chown -R #{webserver_user}:#{webserver_group} #{shared_path}/var/"
+      #run "#{try_sudo} chmod -R g+w #{shared_path}/var/"
     end
 
   end
@@ -96,8 +100,6 @@ namespace :capez do
         generate
       end
       autoload_list.each { |autoload| capture "cd #{current_path} && php bin/php/ezpgenerateautoloads.php --#{autoload}" }
-      # does not work since the script does not know how to deal with multiple arguments...
-      #capture "cd #{current_path} && php bin/php/ezpgenerateautoloads.php --#{autoload_list.join( " --" )}"
     end
   end
   # End of namespace :capez:autoloads
