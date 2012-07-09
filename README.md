@@ -2,6 +2,8 @@
 
 Deploy your eZ Publish website on multiple servers
 
+IMPORTANT: this package is currently under development, please consider testing it on a preproduction environment.
+
 ## Features
 
 * Deployment
