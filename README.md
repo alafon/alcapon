@@ -29,6 +29,10 @@ please fell free to give some feedback.
 * Install missing/required stuff
 * Run `cap deploy`
 
+## Dealing with the multistage plugin for capistrano
+
+TODO
+
 ## Note regarding dependencies
 
 The `deploy:check` task checks that the following are installed :
