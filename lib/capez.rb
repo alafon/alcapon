@@ -1,3 +1,6 @@
+load_paths.push File.expand_path('../', __FILE__)
+load 'database.rb'
+
 # This will simply do chmod g+w on all dir
 # See task :setup
 set :group_writable, true

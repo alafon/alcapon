@@ -40,10 +40,11 @@ end
 
 files = {
   "Capfile" => unindent(<<-FILE),
+    set :alcapon_path, \"#{alcapon_path}\"
     load 'deploy' if respond_to?(:namespace) # cap2 differentiator
     Dir['vendor/gems/*/recipes/*.rb','vendor/plugins/*/recipes/*.rb'].each { |plugin| load(plugin) }
 
-    Dir['#{alcapon_path}/lib/*.rb'].each { |recipe| load(recipe) }
+    load Gem.find_files('capez.rb').last.to_s
 
     set :stage_dir, '#{alcapon_path}/config/deploy'
     Dir['#{alcapon_path}/config/*.rb'].each { |recipe| load(recipe) }

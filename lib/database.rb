@@ -8,8 +8,8 @@ namespace :database do
           run "rm #{file}"
         end
       run "mysqldump -u#{database_uname} -p#{database_passd} #{database_name} | gzip -9 > #{file}"
-      `mkdir -p #{File.dirname(__FILE__)}/../backups/database`
-      get file, "backups/database/#{filename}"
+      `mkdir -p extension/alcapon/backups/database`
+      get file, "extension/alcapon/backups/database/#{filename}"
       run "rm #{file}"
     end
 
@@ -18,7 +18,7 @@ namespace :database do
       if confirmation == "n" or confirmation == ""
         abort
       end
-      backup_list = `ls #{File.dirname(__FILE__)}/../backups/database`
+      backup_list = `ls extension/alcapon/backups/database`
       backup_files = backup_list.split( /\n/ );
       files = Hash.new
       i = 1
@@ -29,7 +29,7 @@ namespace :database do
       }
       file_to_import = Capistrano::CLI.ui.ask "Which one ?"
       if files.has_key?( file_to_import.to_i )
-        system( "gunzip < #{File.dirname(__FILE__)}/../backups/database/#{files[file_to_import.to_i]} | mysql -u#{database_uname} -p#{database_passd} #{database_name} ")
+        system( "gunzip < extension/alcapon/backups/database/#{files[file_to_import.to_i]} | mysql -u#{database_uname} -p#{database_passd} #{database_name} ")
       else
         abort "Bad index"
       end
