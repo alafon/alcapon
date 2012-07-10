@@ -12,6 +12,12 @@ IMPORTANT: this package is currently under development, please consider testing 
 * Remote cache related operations
 * Autoload generation
 
+## Capistrano requirements
+
+Even if the gemspec says that it requires capistrano >= 2.12, it might be
+compatible with older version. If you've successfully used it on such versions
+please fell free to give some feedback.
+
 ## Installation
 
 * From /path/to/ezpublish, run "capezit ."
