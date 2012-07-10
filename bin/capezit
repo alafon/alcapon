@@ -4,6 +4,7 @@ require 'optparse'
 require 'fileutils'
 
 alcapon_path  = 'extension/alcapon'
+FileUtils.mkdir_p(File.join(alcapon_path,'config/deploy'))
 
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename($0)} [path]"
