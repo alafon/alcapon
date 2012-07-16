@@ -115,6 +115,12 @@ files = {
     # If true, adds '--purge' to the ezcache.php command
     set :cache_purge, false
 
+    # Set this if you want to be able to sync your remote shared directory
+    #set :storage_dir, 'var/ezflow_site/storage'
+
+    # Set this variable to tell Capistrano with which host you want to sync to storage dir
+    #set :shared_host, "domain.com"
+
     # Which autoloads to generate. By default, regenerates extensions and
     # kernel-override autoloads
     # Possible values : see bin/php/ezpgenerateautoloads.php --help

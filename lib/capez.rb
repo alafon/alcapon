@@ -83,11 +83,30 @@ namespace :capez do
     desc <<-DESC
       Set the right permissions in var/
     DESC
-    task :fix_permissions do
+    task :fix_permissions, :roles => :web do
       # We need to fix user and group permissions since eZ Publish wants to chmod 0666...
       #run "#{try_sudo} chown -h #{webserver_user}:#{webserver_group} #{current_path}/var"
       #run "#{try_sudo} chown -R #{webserver_user}:#{webserver_group} #{shared_path}/var/"
-      #run "#{try_sudo} chmod -R g+w #{shared_path}/var/"
+      run "#{try_sudo} chmod -R g+w #{shared_path}/var/"
+    end
+
+    desc <<-DESC
+      Sync your var directory with a remote one
+    DESC
+    task :sync, :roles => :web, :only => { :primary => true } do
+      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory with a remote one (current stage = #{stage}). Are you sure (y/N) ?"
+      abort "Aborted" unless confirmation.downcase == 'y'
+
+      storage_dir = fetch( :storage_dir, nil )
+      abort "Please set 'storage_dir' before to match your siteaccess configuration" if storage_dir == nil
+
+      shared_host = fetch( :shared_host, nil )
+      abort "Please set 'shared_host'" if shared_host == nil
+
+      sync_path = File.join( "#{shared_path}", "#{storage_dir}" )
+      FileUtils.mkdir_p( storage_dir )
+
+      run_locally( "rsync -az #{user}@#{shared_host}:#{sync_path}/* #{storage_dir}/" )
     end
 
   end
