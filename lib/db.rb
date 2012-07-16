@@ -3,7 +3,7 @@ namespace :db do
     Loads one of the backup made with the db:export:remote task
   DESC
   task :import_to_local do
-    confirmation = Capistrano::CLI.ui.ask "You are about to replace your local database by a remote backup. Are you sure ? y/n (n)"
+    confirmation = Capistrano::CLI.ui.ask "You are about to replace your local database by a remote backup (selected stage = #{stage}). Are you sure ? y/n (n)"
     if confirmation == "n" or confirmation == ""
       abort "Aborted"
     end
