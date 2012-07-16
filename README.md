@@ -1,8 +1,8 @@
 # AlCapON : Enable Capistrano for your eZ Publish installations
 
-Deploy your eZ Publish website on multiple servers
+AlCapON is a simple recipe for Capistrano, the well-known deployment toolbox. It helps you dealing with simple task such as pushing your code to your webserver(s), clearing your cache, etc.
 
-IMPORTANT: this package is currently under development, please consider testing it on a preproduction environment.
+IMPORTANT: this package is currently under development, please consider testing it on a preproduction environment. Please read the "Known bugs" section carefully.
 
 ## Features
 
@@ -21,12 +21,14 @@ please fell free to give some feedback.
 
 ## Installation
 
-* Install Capistrano : see online documentation [here]
-* Install alcapon gem : `gem install alcapon`
+* Install Capistrano : see online documentation [here](https://github.com/capistrano/capistrano/wiki/2.x-Getting-Started)
+* Install the alcapon gem : `gem install alcapon`
 
 ## Setting it up
 
-* From /path/to/ezpublish, run `capezit .`. It creates sample files you will need to edit in extension/alcapon
+* From /path/to/ezpublish, run `capezit .`. It creates :
+	* at root : a `Capfile`
+	* in extension/alcapon sample files you will need to edit later
 * Server related configuration : modify config/deploy.rb to match your server configuration
 	* if you want to disable the multistage feature (enabled by default), then comment the related lines at the bottom of config/deploy.rb
 * eZ Publish related configuration :
@@ -36,7 +38,7 @@ please fell free to give some feedback.
 * Run `cap deploy:setup` to create the needed directories
 * Run `cap deploy:check` to check if your servers match the requirements
 * Install missing/required stuff
-* Run `cap deploy`
+* Run `cap deploy` and pray
 
 ## Note regarding dependencies
 
@@ -58,3 +60,26 @@ However, it does not check the followings requirements :
 ## Known bugs
 
 * Having the var directory being a symlink to somewhere else seems to prevent the cache from working properly, see http://pwet.fr/blog/symlink_to_the_ez_publish_var_directory_a_good_idea
+
+## Contributing to AlCapON
+
+Pretty simple :
+
+* for this repo
+* clone your own fork in /somewhere/alcapon
+* hack your Capfile and replace
+
+````
+load Gem.find_files('capez.rb').last.to_s
+````
+by
+
+````
+load '/somewhere/alcapon/lib/capez.rb'
+````
+* this way you can test what you do without building the gem everytime
+* create a branch for each of your pull request (I may ask you to rebase your code)
+* send me a pull request so that we can discusss on your work
+
+## Contributors
+Be the first !
