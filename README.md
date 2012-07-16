@@ -6,11 +6,12 @@ IMPORTANT: this package is currently under development, please consider testing 
 
 ## Features
 
-* Deployment
+* Source code deployment
 * Remote database backup and retrievment
-* Remote database local import
-* Remote cache related operations
+* Local import of your remote database backups
+* Remote cache operations
 * Autoload generation
+* Storage sync (remote => local only)
 
 ## Capistrano requirements
 
@@ -20,18 +21,22 @@ please fell free to give some feedback.
 
 ## Installation
 
-* From /path/to/ezpublish, run "capezit ."
+* Install Capistrano : see online documentation [here]
+* Install alcapon gem : `gem install alcapon`
+
+## Setting it up
+
+* From /path/to/ezpublish, run `capezit .`. It creates sample files you will need to edit in extension/alcapon
 * Server related configuration : modify config/deploy.rb to match your server configuration
-* eZ Publish related configuration : modifiy config/ezpublish.rb to match your website configuration (such as db configuration)
+	* if you want to disable the multistage feature (enabled by default), then comment the related lines at the bottom of config/deploy.rb
+* eZ Publish related configuration :
+	* multistage disabled : modifiy config/ezpublish.rb to match your website configuration (such as db configuration)
+	* multistage enabled : run `cap multistage:prepare`. It creates sample files in config/deploy/ for your environment overrides
 * Make sure that the 'user' in config/deploy.rb has sudo rights so that he can create the required directories
 * Run `cap deploy:setup` to create the needed directories
-* Run `cap deploy:check` to check if your servers match the requirements)
+* Run `cap deploy:check` to check if your servers match the requirements
 * Install missing/required stuff
 * Run `cap deploy`
-
-## Dealing with the multistage plugin for capistrano
-
-TODO
 
 ## Note regarding dependencies
 
@@ -48,6 +53,7 @@ However, it does not check the followings requirements :
 ## Todo List
 
 * Auto-update : as the gem is currently under development, it should be able to check if a new version is available and inform the user how to upgrade its current alcapon gem
+* Database configuration could(/should ?) be on the remote(s) itself, in a yml file for instance
 
 ## Known bugs
 
