@@ -45,6 +45,10 @@ However, it does not check the followings requirements :
 * PHP
 * Apache2/Nginx configuration (and required modules activation)
 
+## Todo List
+
+* Auto-update : as the gem is currently under development, it should be able to check if a new version is available and inform the user how to upgrade its current alcapon gem
+
 ## Known bugs
 
 * Having the var directory being a symlink to somewhere else seems to prevent the cache from working properly, see http://pwet.fr/blog/symlink_to_the_ez_publish_var_directory_a_good_idea
