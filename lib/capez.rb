@@ -131,7 +131,7 @@ namespace :capez do
     desc <<-DESC
       Checks if there are local changes or not (only with Git)
       Considers that your main git repo is at the top of your eZ Publish install
-      If it is the case, ask the user to continue or not
+      If changes are detected, then ask the user to continue or not
     DESC
     task :local_check do
       if "#{scm}" != "git" then

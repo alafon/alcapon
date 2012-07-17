@@ -113,12 +113,13 @@ files = {
     set :cache_list, [ "template", "ini", "content" ]
 
     # If true, adds '--purge' to the ezcache.php command
+    # Be careful with that one, some versions are known to completely delete
+    # your var directory (2012.5 for instance)
     set :cache_purge, false
 
     # Set this if you want to be able to sync your remote shared directory
     #set :storage_dir, 'var/ezflow_site/storage'
-
-    # Set this variable to tell Capistrano with which host you want to sync to storage dir
+    # Set this to tell Capistrano with which host you want to sync your local storage dir
     #set :shared_host, "domain.com"
 
     # Which autoloads to generate. By default, regenerates extensions and

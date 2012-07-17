@@ -1,23 +1,23 @@
 # AlCapON : Enable Capistrano for your eZ Publish installations
 
-AlCapON is a simple recipe for Capistrano, the well-known deployment toolbox. It helps you dealing with simple task such as pushing your code to your webserver(s), clearing your cache, etc.
+AlCapON is a simple recipe for Capistrano, the well-known deployment toolbox. It helps you dealing with simple task such as pushing your code to your webserver(s), clearing cache, etc.
 
-IMPORTANT: this package is currently under development, please consider testing it on a preproduction environment. Please read the "Known bugs" section carefully.
+IMPORTANT: this package is currently under development, please consider testing it on a preproduction environment before going further. Please also read the "Known bugs" section carefully.
 
 ## Features
 
 * Source code deployment
-* Remote database backup and retrievment
-* Local import of your remote database backups
-* Remote cache operations
-* Autoload generation
-* Storage sync (remote => local only)
+* Remote database backup
+* Local database import
+* Storage folders sync. (remote => local only)
+* Cache commands
+* Autoloads generation
 
 ## Capistrano requirements
 
 Even if the gemspec says that it requires capistrano >= 2.12, it might be
 compatible with older version. If you've successfully used it on such versions
-please fell free to give some feedback.
+please fell free to give us some feedback.
 
 ## Installation
 
@@ -27,18 +27,18 @@ please fell free to give some feedback.
 ## Setting it up
 
 * From /path/to/ezpublish, run `capezit .`. It creates :
-	* at root : a `Capfile`
+	* at the eZ Publish root : a `Capfile` (know the makefile rakefile ? this one has the same purpose)
 	* in extension/alcapon sample files you will need to edit later
 * Server related configuration : modify config/deploy.rb to match your server configuration
-	* if you want to disable the multistage feature (enabled by default), then comment the related lines at the bottom of config/deploy.rb
+	* if you want to disable the multistage feature (enabled by default), then comment the related lines at the top of config/deploy.rb
 * eZ Publish related configuration :
-	* multistage disabled : modifiy config/ezpublish.rb to match your website configuration (such as db configuration)
-	* multistage enabled : run `cap multistage:prepare`. It creates sample files in config/deploy/ for your environment overrides
+	* modifiy config/ezpublish.rb to match your website configuration (such as db configuration)
+	* if multistage is enabled : run `cap multistage:prepare`. It creates sample files in config/deploy/ for your environment overrides
 * Make sure that the 'user' in config/deploy.rb has sudo rights so that he can create the required directories
 * Run `cap deploy:setup` to create the needed directories
 * Run `cap deploy:check` to check if your servers match the requirements
 * Install missing/required stuff
-* Run `cap deploy` and pray
+* Run `cap deploy` and pray :)
 
 ## Note regarding dependencies
 
@@ -65,7 +65,7 @@ However, it does not check the followings requirements :
 
 Pretty simple :
 
-* for this repo
+* fork this repo on github
 * clone your own fork in /somewhere/alcapon
 * hack your Capfile and replace
 
@@ -79,7 +79,7 @@ load '/somewhere/alcapon/lib/capez.rb'
 ````
 * this way you can test what you do without building the gem everytime
 * create a branch for each of your pull request (I may ask you to rebase your code)
-* send me a pull request so that we can discusss on your work
+* send me a pull request
 
 ## Contributors
 Be the first !
