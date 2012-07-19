@@ -87,7 +87,7 @@ namespace :capez do
       # We need to fix user and group permissions since eZ Publish wants to chmod 0666...
       #run "#{try_sudo} chown -h #{webserver_user}:#{webserver_group} #{current_path}/var"
       #run "#{try_sudo} chown -R #{webserver_user}:#{webserver_group} #{shared_path}/var/"
-      run "#{try_sudo} chmod -R g+w #{shared_path}/var/"
+      #run "#{try_sudo} chmod -R g+w #{shared_path}/var/"
     end
 
     desc <<-DESC
