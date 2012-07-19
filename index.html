@@ -14,46 +14,299 @@
   </head>
   <body>
     <div class="wrapper">
+
       <header>
         <h1>AlCapON</h1>
         <p>Give your eZ Publish installation the power of Capistrano</p>
 
-        <p class="view"><a href="https://github.com/alafon/alcapon">View the Project on GitHub <small>alafon/alcapon</small></a></p>
+        <p><a href="#features">Features</a> | <a href="#install">Install</a> | <a href="#docs">Doc</a> | <a href="#contribute">Contribute</a></p>
 
+        <p class="view"><a href="https://github.com/alafon/alcapon">View the Project on GitHub <small>alafon/alcapon</small></a></p>
 
         <ul>
           <li><a href="https://github.com/alafon/alcapon/zipball/master">Download <strong>ZIP File</strong></a></li>
           <li><a href="https://github.com/alafon/alcapon/tarball/master">Download <strong>TAR Ball</strong></a></li>
           <li><a href="https://github.com/alafon/alcapon">View On <strong>GitHub</strong></a></li>
         </ul>
+
       </header>
+
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+        <h2>Capistrano recipe for eZ Publish.</h2>
+        <p>AlCapON is a simple recipe for Capistrano, the well-known deployment toolbox. It helps you dealing with simple task such as pushing your code to your webserver(s), clearing cache, etc.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+        <h3><a name="features">Features</a></h3>
+        <p>
+          <ul>
+            <li>Source code deployment</li>
+            <li>Rollback management (source code only)</li>
+            <li>Remote database backup</li>
+            <li>Local database import</li>
+            <li>Storage folders sync. (remote => local only)</li>
+            <li>Cache commands</li>
+            <li>Autoloads generation</li>
+          </ul>
+        </p>
+        <p>AlCapON has to be installed only <b>once</b> on your system and can be used multiple times with different configuration, depending on each project's needs.</p>
+
+        <h3>How does to it works ?</h3>
+        <p>On each of your remote servers, Capistrano will create a tree which looks like this :
+            <pre><code></code></pre>
+            <br />/tree_root/current will be known by your webserver (Apache, Nginx, whatever) as the document root</p>
+        <p>Each time you deploy :
+            <ul>
+                <li>Capistrano creates a dedicated directory in <i>./releases</i></li>
+                <li>Then it symlinks ./shared/var into the new release</li>
+                <li>Some eZ Publish tasks are then executed to take care of caches, autoloads, ...</li>
+                <li>Finally, it updates the ./current symlink in order to target the newly deployed release</li>
+            </ul>
+        </p>
+
+        <h3>Capistrano requirements</h3>
+        <p>Even if the gemspec says that it requires capistrano >= 2.12, it might be
+        compatible with older version. If you've successfully used it on such versions
+        please fell free to give us some feedback.</p>
+
+        <h4>Note regarding dependencies checks made by the recipe</h4>
+
+        <p>The `deploy:check` task will make sure that the following are installed :
+            <ul>
+                <li>PHP-CLI</li>
+                <li>PHP >= 5.2.14</li>
+                <li>Curl PHP extension</li>
+            </ul>
+
+            However, it does not check the followings requirements :
+            <ul>
+                <li>eZ Components installation</li>
+                <li>other PHP extensions / configuration requirements such as date.timezone</li>
+                <li>Apache2/Nginx configuration (and required modules activation)</li>
+            </ul>
+            <br />
+            <p>To be honest, I did not investigate more on Capistrano capabilities regarding this kind of features and it was just a proof of concept. I think that dedicated tasks should be created to really check what needs to be, so feel free to contribute on this topic</p>
+        </p>
+
+        <h3><a name="install">Installation</a></h3>
+        <ul>
+          <li>Install Capistrano : see online documentation <a href="https://github.com/capistrano/capistrano/wiki/2.x-Getting-Started">here</a>
+          <li>Install the alcapon gem</li>
+        </ul>
+        <pre><code>$ gem install alcapon</code></pre>
+
+        <h3>Setting it up</h3>
+        <h4>Initialisation</h4>
+        <p>From /path/to/ezpublish, run</p>
+        <pre><code>$ capezit .</code></pre>
+        <p>This is a simple initialisation script that will create
+          <ul>
+            <li>at the eZ Publish root : a <i>Capfile</i> (know makefile or rakefile ? this one has the same purpose)</li>
+            <li>in extension/alcapon : sample files you will need to edit later</li>
+          </ul>
+        </p>
+
+        <h3>Common configuration file</h3>
+        <p>config/deploy.rb  a common file you might find within any Capistrano recipe. It controls default settings known by Capistrano itself. A sample one has been created for you by the <i>capezit</i> command : </p>
+
+<pre><code># Comment this if you don't want to use a multistage setup
+set :stages, %w(devel production )
+set :default_stage, "devel"
+require 'capistrano/ext/multistage'
+
+set :application, "myapp"
+set :repository,  "git@github.com:username/myapp.git"
+
+set :deploy_to, "/var/www/\#{application}"
+# The user connecting your server through ssh
+set :user, "deploy"
+
+# The default branch used (can be overridden on multistage setup)
+set :branch, "master"
+
+# Need if you want to deploy somewhere where sudo is needed
+default_run_options[:pty] = true
+
+# Use this to use your ssh keys
+# (you might need to run ssh-add /path/to/your/deploy_key before)
+ssh_options[:forward_agent] = true
+# Or if you want to use a specific key
+#ssh_options[:keys] = %w(/home/username/.ssh/id_rsa)
+
+# Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
+set :scm, :git
+
+# Comment this if you don't use submodules
+set :git_enable_submodules, 1
+
+# Prevents you from cloning the whole rep. each deploy but your remote servers
+# must be able to get connected to your scm server
+set :deploy_via, :remote_cache
+
+# Your Primary HTTP server
+# (Use config/deploy/*.rb files instead if you need a multisage setup)
+role :web, "domain.com", :primary => true
+# Another HTTP server, for instanced when using the clustered mode
+#role :web, "server2"
+
+#role :db,  "your primary db-server here", :primary => true # This is where Rails migrations will run
+#role :db,  "your slave db-server here"
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+        <p><b>Important</b> : the multistage ext. is enabled by default. If you don't want to use it, simply comment the first three settings at the top of this file.</p>
 
-<h3>Designer Templates</h3>
+        <h3>eZ Publish configuration files</h3>
+        <p>Because I did not want to use the default deploy.rb file for eZ Publish related stuff, I putted this in a dedicated one in deploy/ezpublish.rb</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+        <pre><code># This file contains eZ Publish adjustable variables depending on your custom setup
 
-<h3>Rather Drive Stick?</h3>
+# Your webserver user and group, used to chmod directories just after deploy:setup
+set :webserver_user, "apache"
+set :webserver_group, "apache"
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+# If true, will always turn your webserver offline
+# Requires a specific rewrite rule (see documentation)
+set :always_turnoff, false
 
-<h3>Authors and Contributors</h3>
+# Array taking all the values given by php bin/php/ezcache.php --list-tags
+#
+# If you want to clear all caches use :
+#set :cache_list, "all"
+set :cache_list, [ "template", "ini", "content" ]
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+# If true, adds '--purge' to the ezcache.php command
+# Be careful with that one, some versions are known to completely delete
+# your var directory (2012.5 for instance)
+set :cache_purge, false
 
-<h3>Support or Contact</h3>
+# Set this if you want to be able to sync your remote shared directory
+#set :storage_dir, 'var/ezflow_site/storage'
+# Set this to tell Capistrano with which host you want to sync your local storage dir
+#set :shared_host, "domain.com"
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+# Which autoloads to generate. By default, regenerates extensions and
+# kernel-override autoloads
+# Possible values : see bin/php/ezpgenerateautoloads.php --help
+set :autoload_list, [ "extension", "kernel-override" ]
+
+# TODO : use yml files to manage database credentials securely
+# See http://www.simonecarletti.com/blog/2009/06/capistrano-and-database-yml/
+set :database_uname, "dbuname"
+set :database_passd, "dbpasswd"
+set :database_name, "dbname"
+
+# Not implemented
+set :ezpublish_separated_core, false
+set :ezpublish_base, "community"
+set :ezpublish_version, "2012.5"
+
+# Check-list (used by cap setup:check)
+depend :remote, :command, "php"
+depend :remote, :match, "php -r \\"echo(version_compare(PHP_VERSION,'5.2.14')?'ok':'ko');\\"", "ok"
+depend :remote, :match, "php -m | grep curl", "curl"
+
+# TODO
+#Check : PHP memory_limit >= 128
+#Check : PHP date.imezone = "something"
+#Check : eZ Components (must be bundled if eZ Publish >= 20??.? since there's a patch for Archive)
+#Check : If deploy_via remote_cache => check of the remote servers have access to the scm</code></pre>
+
+        <p>If you use the multisage feature, then you need to create overrides in order to set different settings for each of your environment. Pretty useful isn't it ?<br />
+        Fortunately, these files can be generated through a task provided by the multistage ext. (and taking care of the stage names you used in deploy.rb : </p>
+
+        <pre><code>$ cap multistage:prepare</code></pre>
+
+        <p><b>devel.rb</b> example :
+<pre><code># This one is used to run command as a specific user with `sudo -u .... command`
+set :admin_runner, 'sudoer_user'
+set :webserver_user, 'www-data'
+set :webserver_group, 'www-data'
+set :branch, 'devel'
+set :shared_host, 'devel.domain.fr'
+role :web, 'devel.domain.fr', :primary => true           # Your Primary HTTP server
+role :db,  'devel.domain.fr', :primary => true</code></pre>
+        </p>
+
+        <p><b>production.rb</b> example :
+        <pre><code># This one is used to run command as a specific user with `sudo -u .... command`
+set :admin_runner, 'sudoer_user'
+set :webserver_user, 'apache'
+set :webserver_group, 'apache'
+set :branch, 'master'
+set :shared_host, 'www.domain.fr'
+role :web, 'www.domain.fr', :primary => true           # Your Primary HTTP server
+role :db,  'www.domain.fr', :primary => true</code></pre>
+        </p>
+
+        <h3><a name="deploy">Deployment</a></h3>
+
+        <p><b>Important</b> : make sure the users have the needed sudo rights so that the needed directories can be created</p>
+
+        <p>In order to setup your remote environements, simply run :
+            <pre><code>cap deploy:setup</code></pre>
+            This will create the needed folders on the remote servers.
+        </p>
+
+        <p>If you want, you can run cap deploy:check to be sure that your servers are well configured and meet the requirements (currently, only a few of them are implemented)</p>
+
+        <p>At the end, you just need to execute the deploy task :
+            <pre><code>$ cap deploy</code></pre>
+            And if you use the multistage ext. don't forget to specify to which environment you want to deploy you eZ Publish website :
+            <pre><code>$ cap production deploy</code></pre>
+        </p>
+
+        <h3><a name="docs">Documentation</a></h3>
+
+        <h4>Capistrano tasks dedicated to eZ Publish</h4>
+        <table>
+            <tr>
+                <th>task</th>
+                <th>definition</th>
+                <th>comments</th>
+            </tr>
+            <tr>
+                <td>capez:cache:clear</td>
+                <td>Clear the cache</td>
+                <td>Configurable in ezpublish.rb to list the caches that need to be cleared</td>
+            </tr>
+        </table>
+        <p>to be continued</p>
+
+        <h3><a name="todolist">Todo List</a></h3>
+
+        <ul>
+            <li>Auto-update : because the gem is currently under development, it should be able to check if a new version is available and inform the user how to upgrade its current alcapon gem</li>
+            <li>Rollbacks should be able to reimport the old database</li>
+            <li>Prevent the usage of --purge on 2012.4 and 2012.5 to prevent storage from being completely removed from the filesystem...</li>
+            <li>More dependencies checks when using the task deploy:check</li>
+            <li>Enhancements in the var:fix_permission task</li>
+            <li>Add unit tests</li>
+        </ul>
+
+        <h3><a name="bugs">Known bugs</a></h3>
+
+        <h4>Symlink usage</h4>
+        <p>Having the var directory being a symlink to somewhere else seems to prevent the cache from working properly, see <a href="http://pwet.fr/blog/symlink_to_the_ez_publish_var_directory_a_good_idea" target="_blank">http://pwet.fr/blog/symlink_to_the_ez_publish_var_directory_a_good_idea</a> for a good explanation on the issue.<br />
+        Following a recent discussion with <a href="http://github.com/dpobel" class="user-mention">Damien</a>, I think that only symlinking the 'storage' folders within var/ should be enough... This also means that var/[^/]/cache will be generated in all the release folders (and we will need to purge them with a dedicated task I think)</p>
+
+        <h3><a name="contribute">Contributing to AlCapON</a></h3>
+        <ul>
+            <li>fork this repo on github</li>
+            <li>clone your own fork in /somewhere/alcapon</li>
+            <li>hack your Capfile and replace <b>load Gem.find_files('capez.rb').last.to_s</b> by <b>load '/somewhere/alcapon/lib/capez.rb'</b><br />
+                This way you can test what you do without building the gem everytime</li>
+            <li>create a branch for each of your pull request (feel free to rebase your code first)</li>
+            <li>send me a pull request</li>
+        </ul>
+        <p><i>Contributing to the current page is also muchly appreciated :)</i></p>
+
+        <h3><a name="contributors">Authors and Contributors</a></h3>
+        <p><ul>
+            <li>Author : <a href="https://github.com/alafon">alafon</a></li>
+            <li>Contributors : <b>Be the first !</b></li>
+        </ul></p>
+
+        <h3>Support or Contact</h3>
+        <p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/alafon">alafon</a></p>
@@ -61,6 +314,6 @@ $ git checkout gh-pages
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
+
   </body>
 </html>
