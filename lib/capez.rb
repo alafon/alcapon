@@ -138,8 +138,8 @@ namespace :capez do
         abort "Feature only available with git"
       end
 
-      # TODO should be configurable
-      ezroot_path = "#{File.dirname(__FILE__)}/../.."
+      ezroot_path = fetch( :ezpublish_path, false )
+      abort "Please set a correct path to your eZ Publish root (:ezpublish_path) or add 'set :ezpublish_path, File.expand_path( File.dirname( __FILE__ ) )' in your Capfile" unless ezroot_path != false and File.exists?(ezroot_path)
 
       git_status = git_status_result( ezroot_path )
 
