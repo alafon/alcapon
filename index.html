@@ -52,8 +52,24 @@
 
         <h3>How does to it works ?</h3>
         <p>On each of your remote servers, Capistrano will create a tree which looks like this :
-            <pre><code></code></pre>
-            <br />/tree_root/current will be known by your webserver (Apache, Nginx, whatever) as the document root</p>
+            <pre><code>$ tree -L 2 application
+application
+|-- current -> /path/to/application/releases/20120717151916
+|-- releases
+|   |-- 20120704165734
+|   |-- 20120704183051
+|   |-- 20120706135251
+|   |-- 20120709074137
+|   |-- 20120712083257
+|   |-- 20120717151704
+|   `-- 20120717151916
+`-- shared
+    |-- cached-copy
+    |-- log
+    |-- pids
+    |-- system
+    `-- var</code></pre>
+            <br />/path/to/application/current will be known by your webserver (Apache, Nginx, whatever) as the document root</p>
         <p>Each time you deploy :
             <ul>
                 <li>Capistrano creates a dedicated directory in <i>./releases</i></li>
@@ -79,12 +95,12 @@
 
             However, it does not check the followings requirements :
             <ul>
-                <li>eZ Components installation</li>
-                <li>other PHP extensions / configuration requirements such as date.timezone</li>
+                <li>eZ Components (should also check that they are patched according eZ Publish needs)</li>
+                <li>other PHP extensions / configuration requirements such as date.timezone in php.ini</li>
                 <li>Apache2/Nginx configuration (and required modules activation)</li>
             </ul>
             <br />
-            <p>To be honest, I did not investigate more on Capistrano capabilities regarding this kind of features and it was just a proof of concept. I think that dedicated tasks should be created to really check what needs to be, so feel free to contribute on this topic</p>
+            <p>To be honest, I did not investigate more on Capistrano capabilities regarding this kind of features, and it was more a proof of concept. I think that dedicated tasks should be created to really check what we need, so feel free to contribute on this topic.</p>
         </p>
 
         <h3><a name="install">Installation</a></h3>
@@ -314,6 +330,18 @@ role :db,  'www.domain.fr', :primary => true</code></pre>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
+    <script type="text/javascript">
 
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-7659605-8']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
   </body>
 </html>
