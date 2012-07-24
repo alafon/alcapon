@@ -6,17 +6,12 @@ load 'db.rb'
 set :group_writable, true
 
 after "deploy:setup", :roles => :web do
-  # If :deploy_to is something like /var/www then deploy:setup created
-  # directories with sudo and we need to fix it
-  run "#{try_sudo} chown -R #{user} #{deploy_to}"
-  run "#{try_sudo} chgrp -R #{webserver_group} #{deploy_to}"
-  run "mkdir #{shared_path}/var"
+  capez.var.init_shared
 end
 
 after "deploy:update", :roles => :web do
   capez.autoloads.generate
   capez.cache.clear
-  capez.var.fix_permissions
 end
 
 before "deploy", :roles => :web do
@@ -68,26 +63,38 @@ namespace :capez do
       on_rollback do
         clear
       end
-      cache_list.each { |cache_tag| capture "cd #{current_path} && php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}" }
+      cache_list.each { |cache_tag| capture "cd #{current_path} && sudo -u #{webserver_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}" }
     end
   end
 
   namespace :var do
     desc <<-DESC
-      Link .../shared/var into ../releases/[latest_release]/var
+      Creates the needed folder within your remote(s) var directories
     DESC
-    task :link, :roles => :web do
-      run "ln -s #{shared_path}/var #{latest_release}/var"
+    task :init_shared, :roles => :web do
+      run( "mkdir -p #{shared_path}/var/storage" )
+      siteaccess_list.each{ |siteaccess_identifier|
+        run( "mkdir -p #{shared_path}/var/#{siteaccess_identifier}/storage" )
+      }
+
+      fix_permissions( "#{shared_path}/var", webserver_user, webserver_group )
     end
 
     desc <<-DESC
-      Set the right permissions in var/
+      Link .../shared/var into ../releases/[latest_release]/var
     DESC
-    task :fix_permissions, :roles => :web do
-      # We need to fix user and group permissions since eZ Publish wants to chmod 0666...
-      #run "#{try_sudo} chown -h #{webserver_user}:#{webserver_group} #{current_path}/var"
-      #run "#{try_sudo} chown -R #{webserver_user}:#{webserver_group} #{shared_path}/var/"
-      #run "#{try_sudo} chmod -R g+w #{shared_path}/var/"
+    task :link, :roles => :web do
+      run( "mkdir #{latest_release}/var" )
+      siteaccess_list.each{ |siteaccess_identifier|
+        run( "mkdir #{latest_release}/var/#{siteaccess_identifier}" )
+      }
+
+      fix_permissions( "#{latest_release}/var", webserver_user, webserver_group )
+
+      try_sudo( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage", :as => webserver_user )
+      siteaccess_list.each{ |siteaccess_identifier|
+        try_sudo( "ln -s #{shared_path}/var/#{siteaccess_identifier}/storage #{latest_release}/var/#{siteaccess_identifier}/storage", :as => webserver_user )
+      }
     end
 
     desc <<-DESC
@@ -97,16 +104,17 @@ namespace :capez do
       confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory with a remote one (current stage = #{stage}). Are you sure (y/N) ?"
       abort "Aborted" unless confirmation.downcase == 'y'
 
-      storage_dir = fetch( :storage_dir, nil )
-      abort "Please set 'storage_dir' before to match your siteaccess configuration" if storage_dir == nil
-
       shared_host = fetch( :shared_host, nil )
       abort "Please set 'shared_host'" if shared_host == nil
 
-      sync_path = File.join( "#{shared_path}", "#{storage_dir}" )
-      FileUtils.mkdir_p( storage_dir )
+      # TODO : make it configurable
+      exclude_string = ""
+      exclude_paths = [ "/cache", "/log", "/*/cache", "/*/log", "/autoload" ]
+      exclude_paths.each{ |item|
+        exclude_string << "--exclude '#{item}' "
+      }
 
-      run_locally( "rsync -az #{user}@#{shared_host}:#{sync_path}/* #{storage_dir}/" )
+      run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* var/" )
     end
 
   end
@@ -194,6 +202,15 @@ namespace :capez do
       end
       }
       return result
+  end
+
+  def fix_permissions(path,userid,groupid)
+      # If admin_runner is not null then make sure that the command is not run with -u admin_runner
+      if fetch( :admin_runner, nil ) != nil
+        run( "sudo chown -R #{userid}:#{groupid} #{path}" )
+      else
+        try_sudo( "chown -R #{userid}:#{groupid} #{path}" )
+      end
   end
 
 end

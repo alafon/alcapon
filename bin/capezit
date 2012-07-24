@@ -117,8 +117,9 @@ files = {
     # your var directory (2012.5 for instance)
     set :cache_purge, false
 
-    # Set this if you want to be able to sync your remote shared directory
-    #set :storage_dir, 'var/ezflow_site/storage'
+    # Siteaccess list, needed for setup & shared directory sync
+    #set :siteaccess_list, [ "ezflow_site" ]
+
     # Set this to tell Capistrano with which host you want to sync your local storage dir
     #set :shared_host, "domain.com"
 
