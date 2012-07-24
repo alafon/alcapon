@@ -160,7 +160,7 @@ files = {
     # If you need sudo commands to be run with -u sudouser
     #set :admin_runner, "sudouser"
 
-    # This is used for by permissions related tasks
+    # This is used for permissions related tasks
     #set :webserver_user, "www-data"
     #set :webserver_group, "www-data"
   FILE
@@ -174,7 +174,7 @@ files = {
     # If you need sudo commands to be run with -u sudouser
     #set :admin_runner, "sudouser"
 
-    # This is used for by permissions related tasks
+    # This is used for permissions related tasks
     #set :webserver_user, "apache"
     #set :webserver_group, "apache"
   FILE
