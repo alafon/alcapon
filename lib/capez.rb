@@ -171,7 +171,7 @@ namespace :capez do
         puts "You have #{git_status['tracked_branch_commits']} commits that need to be pushed"
         push_before = Capistrano::CLI.ui.ask "Push them before deployment ? y/n (y)"
         if push_before == "" or push_before == "y"
-          system "cd #{ezroot_path} && git push"
+          system "git push"
         end
       end
     end
