@@ -11,7 +11,8 @@ end
 
 after "deploy:update", :roles => :web do
   capez.autoloads.generate
-  capez.cache.clear
+  # We don't need to clear the cache anymore but a warmup might be needed
+  #capez.cache.clear
 end
 
 before "deploy", :roles => :web do
