@@ -130,7 +130,9 @@ namespace :capez do
       on_rollback do
         generate
       end
-      autoload_list.each { |autoload| capture "cd #{current_path} && php bin/php/ezpgenerateautoloads.php --#{autoload}" }
+      autoload_list.each { |autoload|
+        capture( "cd #{current_path} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+      }
     end
   end
   # End of namespace :capez:autoloads
