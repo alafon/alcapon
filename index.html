@@ -255,7 +255,12 @@ role :db,  'www.domain.fr', :primary => true</code></pre>
 
         <h3><a name="deploy">Deployment</a></h3>
 
-        <p><b>Important</b> : make sure the users have the needed sudo rights so that the needed directories can be created</p>
+        <p><b>Important</b> : make sure the users have the needed sudo rights so that the needed command ca be run. For instance, you must give your deployment user (set by :user) the ability to run command as your webserver user :
+            <pre><code>Cmnd_Alias DEPLOY_SHELLS  = /bin/mkdir, /bin/chmod, /bin/chown, /bin/chgrp, /bin/ln, /usr/bin/php
+
+user ALL=(user) NOPASSWD: DEPLOY_SHELLS
+user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
+            so that user can execute command as if he was 'apache'</p>
 
         <p>In order to setup your remote environements, simply run :
             <pre><code>cap deploy:setup</code></pre>
