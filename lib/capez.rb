@@ -10,7 +10,6 @@ after "deploy:setup", :roles => :web do
 end
 
 after "deploy:update", :roles => :web do
-  capez.autoloads.generate
   # We don't need to clear the cache anymore but a warmup might be needed
   #capez.cache.clear
 end
@@ -31,6 +30,7 @@ namespace :deploy do
   DESC
   task :finalize_update do
     capez.var.link
+    capez.autoloads.generate
   end
 
   namespace :web do
@@ -131,7 +131,7 @@ namespace :capez do
         generate
       end
       autoload_list.each { |autoload|
-        capture( "cd #{current_path} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+        capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
       }
     end
   end
