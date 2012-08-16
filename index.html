@@ -121,6 +121,11 @@ application
           </ul>
         </p>
 
+        <h4>Troubleshooting</h4>
+
+        <p>If the capezit or the cap commands are not found on your system, this is more likely that the Ruby's bin directory has not been added to your PATH env. variable. You can do this by editing ~/.bashrc and add this code at the end : <pre><code>PATH=$PATH:/var/lib/gems/1.8/bin
+export PATH</code></pre></p>
+
         <h3>Common configuration file</h3>
         <p>config/deploy.rb  a common file you might find within any Capistrano recipe. It controls default settings known by Capistrano itself. A sample one has been created for you by the <i>capezit</i> command : </p>
 
@@ -329,6 +334,7 @@ user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
         <h4>Symlink usage</h4>
         <p>Having the var directory being a symlink to somewhere else seems to prevent the cache from working properly, see <a href="http://pwet.fr/blog/symlink_to_the_ez_publish_var_directory_a_good_idea" target="_blank">http://pwet.fr/blog/symlink_to_the_ez_publish_var_directory_a_good_idea</a> for a good explanation on the issue.<br />
         Following a recent discussion with <a href="http://github.com/dpobel" class="user-mention">Damien</a>, I think that only symlinking the 'storage' folders within var/ should be enough... This also means that var/[^/]/cache will be generated in all the release folders (and we will need to purge them with a dedicated task I think)</p>
+        <p><b>UPDATE 2012-08-16 : </b> this should have been fixed in the latest version. var/ is not fully symlink anymore, only the var/[^/]/storage directories are symlinked ; cache & logs are now generated in the release itself.</ob>
 
         <h3><a name="contribute">Contributing to AlCapON</a></h3>
         <ul>
