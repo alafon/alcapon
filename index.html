@@ -278,6 +278,9 @@ user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
         <h3><a name="docs">Documentation</a></h3>
 
         <h4>Capistrano tasks dedicated to eZ Publish</h4>
+
+        <p><i>Note : you can list all the available tasks with <b>cap -vT</b></i></p>
+
         <table>
             <tr>
                 <th>task</th>
@@ -285,12 +288,30 @@ user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
                 <th>comments</th>
             </tr>
             <tr>
-                <td>capez:cache:clear</td>
-                <td>Clear the cache</td>
-                <td>Configurable in ezpublish.rb to list the caches that need to be cleared</td>
+                <td>cap capez:autoloads:generate</td>
+                <td># Generates autoloads (extensions and kernel ove...</td>
+            </tr>
+            <tr>
+                <td>cap capez:cache:clear</td>
+                <td># Clear caches the way it is configured in ezpub...</td>
+            </tr>
+            <tr>
+                <td>cap capez:dev:local_check</td>
+                <td># Checks if there are local changes or not (only...</td>
+            </tr>
+            <tr>
+                <td>cap capez:var:init_shared</td>
+                <td># Creates the needed folder within your remote(s...</td>
+            </tr>
+            <tr>
+                <td>cap capez:var:link</td>
+                <td># Link .../shared/var into ../releases/[latest_r...</td>
+            </tr>
+            <tr>
+                <td>cap capez:var:sync</td>
+                <td># Sync your var directory with a remote one</td>
             </tr>
         </table>
-        <p>to be continued</p>
 
         <h3><a name="todolist">Todo List</a></h3>
 
@@ -311,10 +332,11 @@ user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
 
         <h3><a name="contribute">Contributing to AlCapON</a></h3>
         <ul>
-            <li>fork this repo on github</li>
+            <li>fork this repo on Github</li>
             <li>clone your own fork in /somewhere/alcapon</li>
             <li>hack your Capfile and replace <b>load Gem.find_files('capez.rb').last.to_s</b> by <b>load '/somewhere/alcapon/lib/capez.rb'</b><br />
                 This way you can test what you do without building the gem everytime</li>
+            <li>If you want to rebuild AlCapON, simply use <b>gem build alcapon.gemspec</b> and then install your local version with <b>gem install ./alcapon-X.Y.Z.gem</b>
             <li>create a branch for each of your pull request (feel free to rebase your code first)</li>
             <li>send me a pull request</li>
         </ul>
