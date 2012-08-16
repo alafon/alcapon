@@ -6,4 +6,4 @@ IMPORTANT: this package is currently under development, please consider testing 
 
 ## Requirements, installation & co
 
-Please see [alcapon.github.com](http://alcapon.github.com)
+Please see [alafon.github.com/alcapon](http://alafon.github.com/alcapon)
