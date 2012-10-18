@@ -51,6 +51,15 @@ namespace :deploy do
 
 end
 
+namespace :deploy do
+  namespace :rollback do
+    task :cleanup, :except => { :no_release => true } do
+      run( "if [ `readlink #{current_path}` != #{current_release} ]; then #{sudo} rm -rf #{current_release}; fi" )
+    end
+  end
+end
+
+
 namespace :capez do
 
   namespace :cache do
