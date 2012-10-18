@@ -110,8 +110,8 @@ namespace :capez do
     desc <<-DESC
       Sync your var directory with a remote one
     DESC
-    task :sync, :roles => :web, :only => { :primary => true } do
-      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory with a remote one (current stage = #{stage}). Are you sure (y/N) ?"
+    task :sync_to_local, :roles => :web, :only => { :primary => true } do
+      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory FROM a remote one (current stage = #{stage}). Are you sure (y/N) ?"
       abort "Aborted" unless confirmation.downcase == 'y'
 
       shared_host = fetch( :shared_host, nil )
@@ -125,6 +125,29 @@ namespace :capez do
       }
 
       run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* var/" )
+    end
+
+    desc <<-DESC
+      Sync your a remote var folder with local datas
+    DESC
+    task :sync_to_remote, :roles => :web, :only => { :primary => true } do
+      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory TO a remote one (current stage = #{stage}). Are you sure (y/N) ?"
+      abort "Aborted" unless confirmation.downcase == 'y'
+
+      shared_host = fetch( :shared_host, nil )
+      abort "Please set 'shared_host'" if shared_host == nil
+
+      # TODO : make it configurable
+      exclude_string = ""
+      exclude_paths = [ "/cache", "/log", "/*/cache", "/*/log", "/autoload" ]
+      exclude_paths.each{ |item|
+        exclude_string << "--exclude '#{item}' "
+      }
+
+      try_sudo( "chown -R #{user}:#{webserver_user} #{shared_path}/var/*" )
+      run_locally( "rsync -az #{exclude_string} var/* #{user}@#{shared_host}:#{shared_path}/var/ " )
+      try_sudo( "chown -R #{webserver_user} #{shared_path}/var/*" )
+      try_sudo( "chmod -R ug+rwx #{shared_path}/var/*" )
     end
 
   end
