@@ -203,9 +203,6 @@ namespace :capez do
       Generates autoloads (extensions and kernel overrides)
     DESC
     task :generate do
-      on_rollback do
-        generate
-      end
       autoload_list.each { |autoload|
         capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
       }
