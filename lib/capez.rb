@@ -27,11 +27,12 @@ end
 namespace :deploy do
 
   desc <<-DESC
-    Finalize the update by creating symlink var -> shared/var
+    Finalize the update (symlink, autoloads, configuration changes)
   DESC
   task :finalize_update do
     capez.var.link
     capez.autoloads.generate
+    capez.settings.replace
   end
 
   namespace :web do
@@ -62,6 +63,44 @@ end
 
 
 namespace :capez do
+
+  namespace :settings do
+    task :replace, :roles => :web do
+      unless !(file_changes = get_file_changes) then
+        file_changes.each { |filename,operations|
+          puts "Processing file : #{filename}"
+          target_filename = filename
+
+          if operations.has_key?("rename")
+            target_filename = operations['rename']
+            puts "- renaming to : #{target_filename}"
+            run( "if [ -f #{latest_release}/#{filename} ]; then cp #{latest_release}/#{filename} #{latest_release}/#{target_filename}; fi;" )
+          end
+
+          operations.each { |operation,value|
+            case operation
+              when 'rename'
+              when 'replace'
+                value.each { |search,replace|
+                  puts "- replacing '#{search}' by '#{replace}'"
+                  #search = search.gsub("/","\\/")
+                  #replace = replace.gsub("/","\\/")
+                  #run( "sed 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename} > #{latest_release}/#{target_filename}.replaced" )
+                }
+              else
+                puts "'#{operation}' operation is not supported"
+            end
+          }
+        }
+      else
+        puts "No file changes needs to be applied. Please set :file_changes"
+      end
+    end
+
+    def get_file_changes
+      return fetch( :file_changes, false )
+    end
+  end
 
   namespace :cache do
     desc <<-DESC
