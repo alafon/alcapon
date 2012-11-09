@@ -6,6 +6,7 @@ load 'db.rb'
 set :group_writable, true
 
 after "deploy:setup", :roles => :web do
+  try_sudo( "chown -R #{user} #{deploy_to}" )
   capez.var.init_shared
 end
 
@@ -82,26 +83,30 @@ namespace :capez do
       Creates the needed folder within your remote(s) var directories
     DESC
     task :init_shared, :roles => :web do
-      run( "mkdir -p #{shared_path}/var/storage" )
+      try_sudo( "mkdir #{shared_path}/var" )
+      try_sudo( "chmod g+w #{shared_path}/var" )
+      try_sudo( "chgrp -R #{webserver_group} #{shared_path}/var" )
+
+      try_sudo( "mkdir -p #{shared_path}/var/storage", :as => fetch( :webserver_user ) )
       siteaccess_list.each{ |siteaccess_identifier|
-        run( "mkdir -p #{shared_path}/var/#{siteaccess_identifier}/storage" )
+        try_sudo( "mkdir -p #{shared_path}/var/#{siteaccess_identifier}/storage", :as => fetch( :webserver_user ) )
       }
 
-      fix_permissions( "#{shared_path}/var", webserver_user, webserver_group )
     end
 
     desc <<-DESC
       Link .../shared/var into ../releases/[latest_release]/var
     DESC
     task :link, :roles => :web do
-      run( "mkdir #{latest_release}/var" )
+      try_sudo( "mkdir #{latest_release}/var" )
+      try_sudo( "chmod g+w #{latest_release}/var" )
+      try_sudo( "chgrp -R #{webserver_group} #{latest_release}/var" )
+
       siteaccess_list.each{ |siteaccess_identifier|
-        run( "mkdir #{latest_release}/var/#{siteaccess_identifier}" )
+        try_sudo( "mkdir #{latest_release}/var/#{siteaccess_identifier}", :as => fetch( :webserver_user ) )
       }
 
-      fix_permissions( "#{latest_release}/var", webserver_user, webserver_group )
-
-      try_sudo( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage", :as => webserver_user )
+      try_sudo( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage", :as => fetch( :webserver_user ) )
       siteaccess_list.each{ |siteaccess_identifier|
         try_sudo( "ln -s #{shared_path}/var/#{siteaccess_identifier}/storage #{latest_release}/var/#{siteaccess_identifier}/storage", :as => webserver_user )
       }

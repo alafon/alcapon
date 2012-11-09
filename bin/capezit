@@ -99,8 +99,9 @@ files = {
     # This file contains eZ Publish adjustable variables depending on your custom setup
 
     # Your webserver user and group, used to chmod directories just after deploy:setup
-    set :webserver_user, "apache"
-    set :webserver_group, "apache"
+    # By default, this is the user as the one used to connect via SSH
+    set :webserver_user, :user
+    set :webserver_group, :user
 
     # If true, will always turn your webserver offline
     # Requires a specific rewrite rule (see documentation)
@@ -161,8 +162,8 @@ files = {
     #set :admin_runner, "sudouser"
 
     # This is used for permissions related tasks
-    #set :webserver_user, "www-data"
-    #set :webserver_group, "www-data"
+    #set :webserver_user, :user
+    #set :webserver_group, :user
   FILE
 
   "#{alcapon_path}/config/deploy/production.rb" => unindent(<<-FILE)
@@ -175,8 +176,8 @@ files = {
     #set :admin_runner, "sudouser"
 
     # This is used for permissions related tasks
-    #set :webserver_user, "apache"
-    #set :webserver_group, "apache"
+    #set :webserver_user, :user
+    #set :webserver_group, :user
   FILE
   }
 
