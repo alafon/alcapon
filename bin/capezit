@@ -132,6 +132,8 @@ files = {
     # Which autoloads to generate. By default, regenerates extensions and
     # kernel-override autoloads
     # Possible values : see bin/php/ezpgenerateautoloads.php --help
+    # Feature can be disabled by using :
+    #set :autoload_list, []
     set :autoload_list, [ "extension", "kernel-override" ]
 
     # TODO : use yml files to manage database credentials securely

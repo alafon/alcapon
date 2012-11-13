@@ -258,12 +258,17 @@ namespace :capez do
       Generates autoloads (extensions and kernel overrides)
     DESC
     task :generate do
-      puts "\n--> eZ Publish autoloads :"
-      autoload_list.each { |autoload|
-        print_dotted( "    - #{autoload}" )
-        capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+      if autoload_list.count == 0
+        print_dotted( "--> eZ Publish autoloads (disabled)", :sol => true )
         puts " OK".green
-      }
+      else
+        puts "\n--> eZ Publish autoloads "
+        autoload_list.each { |autoload|
+          print_dotted( "    - #{autoload}" )
+          capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+          puts " OK".green
+        }
+      end
     end
   end
   # End of namespace :capez:autoloads
