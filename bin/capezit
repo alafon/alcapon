@@ -69,6 +69,11 @@ files = {
     # Need if you want to deploy somewhere where sudo is needed
     default_run_options[:pty] = true
 
+    # Set debug level to IMPORTANT only
+    # Comment if you want to get more debug outputs
+    logger.level = Logger::IMPORTANT
+
+
     # Use this to use your ssh keys
     # (you might need to run ssh-add /path/to/your/deploy_key before)
     ssh_options[:forward_agent] = true
@@ -178,6 +183,16 @@ files = {
     # This is used for permissions related tasks
     #set :webserver_user, :user
     #set :webserver_group, :user
+
+    #set :file_changes, {
+    #    'settings/override/site.ini.append.dist' => {
+    #        'rename' => 'settings/override/site.ini.append.php',
+    #        'replace' => {
+    #            '@tokens_database_host@' => 'prod-dbs',
+    #        },
+    #    }
+    #}
+
   FILE
   }
 
