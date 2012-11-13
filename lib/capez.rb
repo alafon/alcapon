@@ -88,8 +88,10 @@ namespace :capez do
       Makes some file level operations if needed (rename, replace)
     DESC
     task :deploy, :roles => :web do
+      puts "\n--> File operations"
       unless !(file_changes = get_file_changes) then
-        puts "\n--> File operations"
+        # todo : is this value known by Capistrano ?
+        remote_operating_system = capture( "uname" )
         # process each files
         file_changes.each { |filename,operations|
           puts "* #{filename}"
@@ -113,12 +115,20 @@ namespace :capez do
             case operation
               when 'rename'
               when 'replace'
-                print_dotted( "    - replacing values" )
+                # todo : see if it would be faster to download the file locally and then
+                #        make replacements with ruby code before re-uploading the file
+                print_dotted( "    - replacing #{value.count} values" )
                 value.each { |search,replace|
                   # todo : only support path escaping
                   search = search.gsub('/','\/')
                   replace = replace.gsub('/','\/')
-                  run( "sed -i '' 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename}" )
+                  # sed differs slightly on BSD than on Linux
+                  case remote_operating_system
+                    when /^(Darwin|FreeBSD)/
+                      run( "sed -i '' 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename}" )
+                    else
+                      run( "sed -i 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename}" )
+                  end
                 }
                 puts " OK".green
               else
@@ -127,7 +137,7 @@ namespace :capez do
           }
         }
       else
-        puts "No file changes needs to be applied. Please set :file_changes"
+        puts "No file changes needs to be applied. Please set :file_changes".blue
       end
     end
 
