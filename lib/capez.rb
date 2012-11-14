@@ -13,20 +13,34 @@ end
 after "deploy:setup", :roles => :web do
   puts " OK".green
   print_dotted( "--> Fixing permissions on deployment directory" )
-  try_sudo( "chown -R #{user} #{deploy_to}" )
+  try_sudo( "chown -R #{user} #{deploy_to}" ) # if not code checkout cannot be done :/
   puts " OK".green
   capez.var.init_shared
 end
 
 before "deploy:update_code" do
-  print_dotted( "--> Code update" )
+  puts( "\n    *** Building release ***" )
+  puts( "    Started at " + Time.now.utc.strftime("%H:%M:%S") )
 end
 
 after "deploy:update_code" do
-  puts " OK".green
+  puts "\n    *** Release ready ***".green
+  puts( "    Finished at " + Time.now.utc.strftime("%H:%M:%S") )
+end
+
+before "deploy:finalize_update" do
+  # Needed if you want to create extra shared directories under var/ with
+  # set :shared_children, [ "var/something",
+  #                         "var/something_else" ]
+  # Note that :shared_children creates a folder within shared which name is
+  # the last path element (ie: something or something_else) => that's why
+  # we cannot use it to create siteaccess storages (var/siteaccess/storage)
+  run( "mkdir #{latest_release}/var" )
 end
 
 after "deploy:finalize_update" do
+  capez.var.init_release
+  capez.var.link
   capez.settings.deploy
   capez.autoloads.generate
   #capez.cache.clear
@@ -51,15 +65,6 @@ end
 
 # Default behavior overrides
 namespace :deploy do
-
-  desc <<-DESC
-  DESC
-  task :finalize_update do
-    # We cannot use the default dehavior since it split the path and only use the last element
-    # and that is an issue since it will try to create and symlink 2 storage dirs in shared/
-    # for var/storage and var/siteaccess/storage
-    capez.var.link
-  end
 
   namespace :web do
     desc <<-DESC
@@ -176,50 +181,63 @@ namespace :capez do
     task :init_shared, :roles => :web do
       puts( "--> Creating eZ Publish var directories" )
       print_dotted( "    - var " )
-      try_sudo( "mkdir #{shared_path}/var" )
-      try_sudo( "chmod g+w #{shared_path}/var" )
-      try_sudo( "chgrp -R #{webserver_group} #{shared_path}/var" )
+      run( "mkdir #{shared_path}/var" )
       puts " OK".green
 
       print_dotted( "    - var/storage" )
-      try_sudo( "mkdir -p #{shared_path}/var/storage", :as => fetch( :webserver_user ) )
+      run( "mkdir -p #{shared_path}/var/storage" )
       puts " OK".green
 
       siteaccess_list.each{ |siteaccess_identifier|
         print_dotted( "    - var/#{siteaccess_identifier}/storage" )
-        try_sudo( "mkdir -p #{shared_path}/var/#{siteaccess_identifier}/storage", :as => fetch( :webserver_user ) )
+        run( "mkdir -p #{shared_path}/var/#{siteaccess_identifier}/storage" )
         puts " OK".green
       }
+      run( "chmod -R g+w #{shared_path}/var")
+      run( "chown -R #{fetch(:webserver_group,:user)} #{shared_path}/var")
+    end
+
+
+
+    desc <<-DESC
+      [internal] Creates release directories
+    DESC
+    task :init_release, :roles => :web do
+      puts "\n--> Release directories"
+
+      # creates a storage dir for each siteaccess define by :siteaccess_list
+      siteaccess_list.each{ |siteaccess_identifier|
+        print_dotted( "    - var/#{siteaccess_identifier}/storage" )
+        run( "mkdir #{latest_release}/var/#{siteaccess_identifier}" )
+        puts " OK".green
+      }
+
+      # makes sure the webserver can write into var/
+      run( "chmod -R g+w #{latest_release}/var")
+      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/var")
+      # needed even if we just want to run 'bin/php/ezpgenerateautoloads.php' with --extension
+      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/autoload")
     end
 
     desc <<-DESC
       Link .../shared/var into ../releases/[latest_release]/var
     DESC
     task :link, :roles => :web do
-      puts "\n--> Release directories"
-      print_dotted( "    - var/" )
-      try_sudo( "mkdir #{latest_release}/var" )
-      try_sudo( "chmod g+w #{latest_release}/var" )
-      try_sudo( "chgrp -R #{webserver_group} #{latest_release}/var" )
-      puts " OK".green
-
-      siteaccess_list.each{ |siteaccess_identifier|
-        print_dotted( "    - var/#{siteaccess_identifier}/storage" )
-        try_sudo( "mkdir #{latest_release}/var/#{siteaccess_identifier}", :as => fetch( :webserver_user ) )
-        puts " OK".green
-      }
-
       puts( "\n--> Symlinks" )
 
       print_dotted( "    - var/storage" )
-      try_sudo( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage", :as => fetch( :webserver_user ) )
+      run( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage" )
       puts " OK".green
 
       siteaccess_list.each{ |siteaccess_identifier|
         print_dotted( "    - var/#{siteaccess_identifier}/storage" )
-        try_sudo( "ln -s #{shared_path}/var/#{siteaccess_identifier}/storage #{latest_release}/var/#{siteaccess_identifier}/storage", :as => webserver_user )
+        run( "ln -s #{shared_path}/var/#{siteaccess_identifier}/storage #{latest_release}/var/#{siteaccess_identifier}/storage", :as => webserver_user )
+        #run( "chmod -h g+w #{latest_release}/var/#{siteaccess_identifier}/storage")
         puts " OK".green
       }
+
+      run( "chmod -R g+w #{latest_release}/var")
+      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{shared_path}/var")
     end
 
     desc <<-DESC
