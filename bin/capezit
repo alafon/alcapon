@@ -73,6 +73,9 @@ files = {
     # Comment if you want to get more debug outputs
     logger.level = Logger::IMPORTANT
 
+    # Override default feature (not needed for eZ Publish)
+    # If turned on, you will get a warning during deployment but it should not be aborted
+    set :normalize_asset_timestamps, false
 
     # Use this to use your ssh keys
     # (you might need to run ssh-add /path/to/your/deploy_key before)
