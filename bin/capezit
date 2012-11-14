@@ -132,6 +132,10 @@ files = {
     # Set this to tell Capistrano with which host you want to sync your local storage dir
     #set :shared_host, "domain.com"
 
+    # Changes the group of shared_children items (by default, webserver_group is used)
+    # If not set, permissions remain unchanged
+    #set :shared_children_group, "#{webserver_group}"
+
     # Which autoloads to generate. By default, regenerates extensions and
     # kernel-override autoloads
     # Possible values : see bin/php/ezpgenerateautoloads.php --help
