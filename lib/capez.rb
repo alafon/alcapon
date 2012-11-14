@@ -24,7 +24,9 @@ end
 
 after "deploy:update_code" do
   puts " OK".green
-  capez.var.link
+end
+
+after "deploy:finalize_update" do
   capez.settings.deploy
   capez.autoloads.generate
   #capez.cache.clear
@@ -53,6 +55,10 @@ namespace :deploy do
   desc <<-DESC
   DESC
   task :finalize_update do
+    # We cannot use the default dehavior since it split the path and only use the last element
+    # and that is an issue since it will try to create and symlink 2 storage dirs in shared/
+    # for var/storage and var/siteaccess/storage
+    capez.var.link
   end
 
   namespace :web do
