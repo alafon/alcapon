@@ -8,9 +8,8 @@ set :group_writable, true
 
 # triggered after all recipes have loaded
 on :load do
-  if( siteaccess_list != nil )
-    puts( "The usage of siteaccess_list in ezpublish.rb is deprecated as of 0.3.0.\nPlease use storage_directories instead".red )
-    abort;
+  if( fetch( :siteaccess_list, nil ) != nil )
+    abort "The usage of siteaccess_list in ezpublish.rb is deprecated as of 0.3.0.\nPlease use storage_directories instead".red
   end
 end
 
@@ -19,10 +18,10 @@ before "deploy:setup" do
 end
 
 after "deploy:setup", :roles => :web do
-  puts " OK".green
+  puts( " OK".green )
   print_dotted( "--> Fixing permissions on deployment directory" )
   try_sudo( "chown -R #{user} #{deploy_to}" ) # if not code checkout cannot be done :/
-  puts " OK".green
+  puts( " OK".green )
   capez.var.init_shared
 end
 
@@ -32,7 +31,7 @@ before "deploy:update_code" do
 end
 
 after "deploy:update_code" do
-  puts "\n    *** Release ready ***".green
+  puts( "\n    *** Release ready ***".green )
   puts( "    Finished at " + Time.now.utc.strftime("%H:%M:%S") )
 end
 
@@ -71,7 +70,7 @@ before "deploy:create_symlink" do
 end
 
 after "deploy:create_symlink" do
-  puts " OK".green
+  puts( " OK".green )
 end
 
 # Default behavior overrides
@@ -110,13 +109,13 @@ namespace :capez do
       Makes some file level operations if needed (rename, replace)
     DESC
     task :deploy, :roles => :web do
-      puts "\n--> File operations"
+      puts( "\n--> File operations" )
       unless !(file_changes = get_file_changes) then
         # todo : is this value known by Capistrano ?
         remote_operating_system = capture( "uname" )
         # process each files
         file_changes.each { |filename,operations|
-          puts "* #{filename}"
+          puts( "* #{filename}" )
           target_filename = filename
           renamed = false
 
@@ -126,10 +125,10 @@ namespace :capez do
             if( target_filename != operations['rename'] )
               target_filename = operations['rename']
               run( "if [ -f #{latest_release}/#{filename} ]; then cp #{latest_release}/#{filename} #{latest_release}/#{target_filename}; fi;" )
-              puts " OK".green
+              puts( " OK".green )
             else
               target_filename = operations['rename']
-              puts "... KO : target and original name are the same".red
+              puts( "... KO : target and original name are the same".red )
             end
           end
 
@@ -152,14 +151,14 @@ namespace :capez do
                       run( "sed -i 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename}" )
                   end
                 }
-                puts " OK".green
+                puts( " OK".green )
               else
-                puts "    - '#{operation}' operation is not supported".red
+                puts( "    - '#{operation}' operation is not supported".red )
             end
           }
         }
       else
-        puts "No file changes needs to be applied. Please set :file_changes".blue
+        puts( "No file changes needs to be applied. Please set :file_changes".blue )
       end
     end
 
@@ -176,11 +175,11 @@ namespace :capez do
     # Multiple server platform are supposed to use a cluster configuration (eZDFS/eZDBFS)
     # and cache management is done via expiry.php which is managed by the cluster API
     task :clear, :roles => :web, :only => { :primary => true } do
-      puts "\n--> Clearing caches #{'with --purge'.red if cache_purge}"
+      puts( "\n--> Clearing caches #{'with --purge'.red if cache_purge}" )
       cache_list.each { |cache_tag|
-        print "    - #{cache_tag}"
+        print_dotted( "    - #{cache_tag}" )
         capture "cd #{current_path} && sudo -u #{webserver_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
-        puts " OK".green
+        puts( " OK".green )
       }
     end
   end
@@ -193,16 +192,16 @@ namespace :capez do
       puts( "--> Creating eZ Publish var directories" )
       print_dotted( "    - var " )
       run( "mkdir #{shared_path}/var" )
-      puts " OK".green
+      puts( " OK".green )
 
       print_dotted( "    - var/storage" )
       run( "mkdir -p #{shared_path}/var/storage" )
-      puts " OK".green
+      puts( " OK".green )
 
       storage_directories.each{ |sd|
         print_dotted( "    - var/#{sd}/storage" )
         run( "mkdir -p #{shared_path}/var/#{sd}/storage" )
-        puts " OK".green
+        puts( " OK".green )
       }
       run( "chmod -R g+w #{shared_path}/var")
       run( "chown -R #{fetch(:webserver_group,:user)} #{shared_path}/var")
@@ -214,13 +213,13 @@ namespace :capez do
       [internal] Creates release directories
     DESC
     task :init_release, :roles => :web do
-      puts "\n--> Release directories"
+      puts( "\n--> Release directories" )
 
       # creates a storage dir for elements specified by :storage_directories
       storage_directories.each{ |sd|
         print_dotted( "    - var/#{sd}/storage" )
         run( "mkdir #{latest_release}/var/#{sd}" )
-        puts " OK".green
+        puts( " OK".green )
       }
 
       # makes sure the webserver can write into var/
@@ -238,13 +237,13 @@ namespace :capez do
 
       print_dotted( "    - var/storage" )
       run( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage" )
-      puts " OK".green
+      puts( " OK".green )
 
       storage_directories.each{ |sd|
         print_dotted( "    - var/#{sd}/storage" )
         run( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/var/#{sd}/storage", :as => webserver_user )
         #run( "chmod -h g+w #{latest_release}/var/#{sd}/storage")
-        puts " OK".green
+        puts( " OK".green )
       }
 
       run( "chmod -R g+w #{latest_release}/var")
@@ -305,13 +304,13 @@ namespace :capez do
     task :generate do
       if autoload_list.count == 0
         print_dotted( "--> eZ Publish autoloads (disabled)", :sol => true )
-        puts " OK".green
+        puts( " OK".green )
       else
-        puts "\n--> eZ Publish autoloads "
+        puts( "\n--> eZ Publish autoloads " )
         autoload_list.each { |autoload|
           print_dotted( "    - #{autoload}" )
           capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
-          puts " OK".green
+          puts( " OK".green )
         }
       end
     end
@@ -339,11 +338,11 @@ namespace :capez do
       ask_to_abort = false
       if git_status['has_local_changes']
         ask_to_abort = true
-        puts "    - You have local changes"
+        puts( "    - You have local changes" )
       end
       if git_status['has_new_files']
         ask_to_abort = true
-        puts "    - You have untracked files (not under git control)"
+        puts( "    - You have untracked files (not under git control)" )
       end
 
       if ask_to_abort
