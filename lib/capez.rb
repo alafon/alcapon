@@ -6,6 +6,14 @@ require 'colored'
 # See task :setup
 set :group_writable, true
 
+# triggered after all recipes have loaded
+on :load do
+  if( siteaccess_list != nil )
+    puts( "The usage of siteaccess_list in ezpublish.rb is deprecated as of 0.3.0.\nPlease use storage_directories instead".red )
+    abort;
+  end
+end
+
 before "deploy:setup" do
   print_dotted( "--> Creating default directories" )
 end
@@ -191,9 +199,9 @@ namespace :capez do
       run( "mkdir -p #{shared_path}/var/storage" )
       puts " OK".green
 
-      siteaccess_list.each{ |siteaccess_identifier|
-        print_dotted( "    - var/#{siteaccess_identifier}/storage" )
-        run( "mkdir -p #{shared_path}/var/#{siteaccess_identifier}/storage" )
+      storage_directories.each{ |sd|
+        print_dotted( "    - var/#{sd}/storage" )
+        run( "mkdir -p #{shared_path}/var/#{sd}/storage" )
         puts " OK".green
       }
       run( "chmod -R g+w #{shared_path}/var")
@@ -208,10 +216,10 @@ namespace :capez do
     task :init_release, :roles => :web do
       puts "\n--> Release directories"
 
-      # creates a storage dir for each siteaccess define by :siteaccess_list
-      siteaccess_list.each{ |siteaccess_identifier|
-        print_dotted( "    - var/#{siteaccess_identifier}/storage" )
-        run( "mkdir #{latest_release}/var/#{siteaccess_identifier}" )
+      # creates a storage dir for elements specified by :storage_directories
+      storage_directories.each{ |sd|
+        print_dotted( "    - var/#{sd}/storage" )
+        run( "mkdir #{latest_release}/var/#{sd}" )
         puts " OK".green
       }
 
@@ -232,10 +240,10 @@ namespace :capez do
       run( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage" )
       puts " OK".green
 
-      siteaccess_list.each{ |siteaccess_identifier|
-        print_dotted( "    - var/#{siteaccess_identifier}/storage" )
-        run( "ln -s #{shared_path}/var/#{siteaccess_identifier}/storage #{latest_release}/var/#{siteaccess_identifier}/storage", :as => webserver_user )
-        #run( "chmod -h g+w #{latest_release}/var/#{siteaccess_identifier}/storage")
+      storage_directories.each{ |sd|
+        print_dotted( "    - var/#{sd}/storage" )
+        run( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/var/#{sd}/storage", :as => webserver_user )
+        #run( "chmod -h g+w #{latest_release}/var/#{sd}/storage")
         puts " OK".green
       }
 

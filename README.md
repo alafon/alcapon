@@ -19,6 +19,9 @@ IMPORTANT: this package is currently under development, please consider testing 
    This will be improved, maybe simplified again, in next versions.
    In consequence, you might experienced some issues, but please, let me know.
 
+ - usage of siteaccess_list in ezpublish.rb is deprecated as of 0.3.0. Please
+   use storage_directories instead (see issue #2)
+
 ## Requirements, installation & co
 
 Please see [alafon.github.com/alcapon](http://alafon.github.com/alcapon)
