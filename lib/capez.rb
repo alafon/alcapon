@@ -26,16 +26,18 @@ after "deploy:setup", :roles => :web do
 end
 
 before "deploy:update_code" do
-  puts( "\n    *** Building release ***" )
-  puts( "    Started at " + Time.now.utc.strftime("%H:%M:%S") )
+  puts( "\n*** Building release ***" )
+  puts( "Started at " + Time.now.utc.strftime("%H:%M:%S") )
+  print_dotted( "--> Updating code", :sol => true )
 end
 
 after "deploy:update_code" do
-  puts( "\n    *** Release ready ***".green )
-  puts( "    Finished at " + Time.now.utc.strftime("%H:%M:%S") )
+  puts( "\n*** Release ready ***".green )
+  puts( "Finished at " + Time.now.utc.strftime("%H:%M:%S") )
 end
 
 before "deploy:finalize_update" do
+  puts( " OK".green )
   # Needed if you want to create extra shared directories under var/ with
   # set :shared_children, [ "var/something",
   #                         "var/something_else" ]
@@ -111,31 +113,39 @@ namespace :capez do
       default_options = { :locally => false }
       options = default_options.merge( options )
 
-      operation_title = "--> File operations"
-      operation_title += "#{options[:locally] ? ' (local)' : ''}"
-      puts( "\n#{operation_title}" )
+      puts( "\n--> File operations" )
 
       unless !(file_changes = get_file_changes) then
 
         path = options[:locally] ? "" : "#{latest_release}/"
 
+        changes = 0
+        renames = 0
+        errors = []
+        messages = []
+
+        print_dotted( "execution", :eol_msg => (options[:locally] ? "local" : "distant" ), :eol => true, :max_length => 25 )
+        print_dotted( "files count", :eol_msg => "#{file_changes.count}", :eol => true, :max_length => 25 )
+
         # process each files
+        print( "progress " )
         file_changes.each { |filename,operations|
-          puts( "* #{filename}" )
+
+          print( "." )
+
           target_filename = filename
           renamed = false
 
           # rename operation is caught and executed at first
           if operations.has_key?("rename")
-            print_dotted( "    - renaming" )
             if( target_filename != operations['rename'] )
               target_filename = operations['rename']
               cmd = "if [ -f #{path}#{filename} ]; then cp #{path}#{filename} #{path}#{target_filename}; fi;"
               options[:locally] ? run_locally( "#{cmd}" ) : run( "#{cmd}" )
-              puts( " OK".green )
+              renames += 1
             else
               target_filename = operations['rename']
-              puts( "... KO : target and original name are the same".red )
+              errors += ["target and original name are the same (#{target_filename})"]
             end
           end
 
@@ -144,8 +154,6 @@ namespace :capez do
               when 'rename'
               when 'replace'
 
-                msg = "    - replacing #{value.count} values "
-                options[:locally] ? print_dotted( msg ) : print( msg )
                 if( value.count > 0 )
 
                   # download file if necessary
@@ -153,33 +161,37 @@ namespace :capez do
                     tmp_filename = target_filename
                   else
                     tmp_filename = target_filename+".tmp"
-                    print( " download" )
                     get "#{path}#{target_filename}", tmp_filename
-                    print( " ("+"OK".green+")")
                   end
 
                   text = File.read(tmp_filename)
                   value.each { |search,replace|
+                    changes += 1
                     text = text.gsub( "#{search}", "#{replace}" )
                   }
                   File.open(tmp_filename, "w") {|file| file.write(text) }
 
                   # upload and remove temporary file
-                  if options[:locally]
-                    puts( " OK".green )
-                  else
-                    print( " upload" )
+                  if !options[:locally]
                     run( "if [ -f #{target_filename} ]; then rm #{target_filename}; fi;" )
                     upload( tmp_filename, "#{path}#{target_filename}" )
                     run_locally( "rm #{tmp_filename}" )
-                    puts( " ("+"OK".green+")")
                   end
                 end
               else
-                puts( "    - '#{operation}' operation is not supported".red )
+                errors += ( "operation '#{operation}' supported" )
             end
           }
         }
+        puts " done".green
+
+        # stats
+        print_dotted( "files renamed", :eol_msg => "#{renames}", :eol => true, :max_length => 25 )
+        print_dotted( "changes count", :eol_msg => "#{changes}", :eol => true, :max_length => 25 )
+        print_dotted( "changes avg / file", :max_length => 25, :eol_msg => ( file_changes.count > 0 ? "#{changes/file_changes.count}" : "" ), :eol => true )
+        messages.each { |msg| puts( "#{msg}") }
+        puts( "errors : ".red ) unless errors.count == 0
+        errors.each { |msg| puts( "- #{msg}".red ) }
       else
         puts( "No file changes needs to be applied. Please set :file_changes".blue )
       end
@@ -215,7 +227,7 @@ namespace :capez do
     task :clear, :roles => :web, :only => { :primary => true } do
       puts( "\n--> Clearing caches #{'with --purge'.red if cache_purge}" )
       cache_list.each { |cache_tag|
-        print_dotted( "    - #{cache_tag}" )
+        print_dotted( "#{cache_tag}" )
         capture "cd #{current_path} && sudo -u #{webserver_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
         puts( " OK".green )
       }
@@ -228,16 +240,16 @@ namespace :capez do
     DESC
     task :init_shared, :roles => :web do
       puts( "--> Creating eZ Publish var directories" )
-      print_dotted( "    - var " )
+      print_dotted( "var " )
       run( "mkdir -p #{shared_path}/var" )
       puts( " OK".green )
 
-      print_dotted( "    - var/storage" )
+      print_dotted( "var/storage" )
       run( "mkdir -p #{shared_path}/var/storage" )
       puts( " OK".green )
 
       storage_directories.each{ |sd|
-        print_dotted( "    - var/#{sd}/storage" )
+        print_dotted( "var/#{sd}/storage" )
         run( "mkdir -p #{shared_path}/var/#{sd}/storage" )
         puts( " OK".green )
       }
@@ -255,7 +267,7 @@ namespace :capez do
 
       # creates a storage dir for elements specified by :storage_directories
       storage_directories.each{ |sd|
-        print_dotted( "    - var/#{sd}/storage" )
+        print_dotted( "var/#{sd}/storage" )
         run( "mkdir #{latest_release}/var/#{sd}" )
         puts( " OK".green )
       }
@@ -273,12 +285,12 @@ namespace :capez do
     task :link, :roles => :web do
       puts( "\n--> Symlinks" )
 
-      print_dotted( "    - var/storage" )
+      print_dotted( "var/storage" )
       run( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage" )
       puts( " OK".green )
 
       storage_directories.each{ |sd|
-        print_dotted( "    - var/#{sd}/storage" )
+        print_dotted( "var/#{sd}/storage" )
         run( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/var/#{sd}/storage", :as => webserver_user )
         #run( "chmod -h g+w #{latest_release}/var/#{sd}/storage")
         puts( " OK".green )
@@ -346,7 +358,7 @@ namespace :capez do
       else
         puts( "\n--> eZ Publish autoloads " )
         autoload_list.each { |autoload|
-          print_dotted( "    - #{autoload}" )
+          print_dotted( "#{autoload}" )
           capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
           puts( " OK".green )
         }
@@ -440,13 +452,18 @@ end
 def print_dotted( message, options={} )
   defaults_options = { :eol => false,
                        :sol => false,
-                       :max_length => 60 }
+                       :max_length => 40,
+                       :eol_msg => false }
 
   options = defaults_options.merge( options )
   message = "#{message} " + "." * [0,options[:max_length]-message.length-1].max
 
   if options[:sol]
     message = "\n#{message}"
+  end
+
+  if options[:eol_msg]
+    message += " #{options[:eol_msg]}"
   end
 
   if options[:eol]
