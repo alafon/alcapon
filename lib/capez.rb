@@ -105,14 +105,24 @@ end
 
 namespace :capez do
   namespace :settings do
-    desc <<-DESC
-      Makes some file level operations if needed (rename, replace)
-    DESC
-    task :deploy, :roles => :web do
-      puts( "\n--> File operations" )
+
+    def make_file_changes( options={} )
+
+      default_options = { :locally => false }
+      options = default_options.merge( options )
+
+        # todo : is the target OS known by Capistrano ?
+      operating_system = options[:locally] ? run_locally( "uname" ) : capture( "uname" )
+
+      operation_title = "--> File operations"
+      operation_title += "#{options[:locally] ? ' (local)' : ''}"
+
+      puts( "\n#{operation_title}" )
+
       unless !(file_changes = get_file_changes) then
-        # todo : is this value known by Capistrano ?
-        remote_operating_system = capture( "uname" )
+
+        path = options[:locally] ? "" : "#{latest_release}/"
+
         # process each files
         file_changes.each { |filename,operations|
           puts( "* #{filename}" )
@@ -124,7 +134,8 @@ namespace :capez do
             print_dotted( "    - renaming" )
             if( target_filename != operations['rename'] )
               target_filename = operations['rename']
-              run( "if [ -f #{latest_release}/#{filename} ]; then cp #{latest_release}/#{filename} #{latest_release}/#{target_filename}; fi;" )
+              cmd = "if [ -f #{path}#{filename} ]; then cp #{path}#{filename} #{path}#{target_filename}; fi;"
+              options[:locally] ? run_locally( "#{cmd}" ) : run( "#{cmd}" )
               puts( " OK".green )
             else
               target_filename = operations['rename']
@@ -144,12 +155,13 @@ namespace :capez do
                   search = search.gsub('/','\/')
                   replace = replace.gsub('/','\/')
                   # sed differs slightly on BSD than on Linux
-                  case remote_operating_system
+                  case operating_system
                     when /^(Darwin|FreeBSD)/
-                      run( "sed -i '' 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename}" )
+                      cmd = "sed -i '' 's/#{search}/#{replace}/g' #{path}#{target_filename}"
                     else
-                      run( "sed -i 's/#{search}/#{replace}/g' #{latest_release}/#{target_filename}" )
+                      cmd = "sed -i 's/#{search}/#{replace}/g' #{path}#{target_filename}"
                   end
+                  options[:locally] ? run_locally( "#{cmd}" ) : run( "#{cmd}" )
                 }
                 puts( " OK".green )
               else
@@ -162,9 +174,24 @@ namespace :capez do
       end
     end
 
+    desc <<-DESC
+      Makes some file level operations if needed (rename, replace)
+    DESC
+    task :deploy, :roles => :web do
+      make_file_changes
+    end
+
+    desc <<-DESC
+      [local] Makes some file level operations if needed (rename, replace)
+    DESC
+    task :deploy_locally, :roles => :web do
+      make_file_changes( :locally => true )
+    end
+
     def get_file_changes
       return fetch( :file_changes, false )
     end
+
   end
 
   namespace :cache do
