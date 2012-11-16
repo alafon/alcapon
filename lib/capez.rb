@@ -111,12 +111,8 @@ namespace :capez do
       default_options = { :locally => false }
       options = default_options.merge( options )
 
-        # todo : is the target OS known by Capistrano ?
-      operating_system = options[:locally] ? run_locally( "uname" ) : capture( "uname" )
-
       operation_title = "--> File operations"
       operation_title += "#{options[:locally] ? ' (local)' : ''}"
-
       puts( "\n#{operation_title}" )
 
       unless !(file_changes = get_file_changes) then
@@ -147,23 +143,38 @@ namespace :capez do
             case operation
               when 'rename'
               when 'replace'
-                # todo : see if it would be faster to download the file locally and then
-                #        make replacements with ruby code before re-uploading the file
-                print_dotted( "    - replacing #{value.count} values" )
-                value.each { |search,replace|
-                  # todo : only support path escaping
-                  search = search.gsub('/','\/')
-                  replace = replace.gsub('/','\/')
-                  # sed differs slightly on BSD than on Linux
-                  case operating_system
-                    when /^(Darwin|FreeBSD)/
-                      cmd = "sed -i '' 's/#{search}/#{replace}/g' #{path}#{target_filename}"
-                    else
-                      cmd = "sed -i 's/#{search}/#{replace}/g' #{path}#{target_filename}"
+
+                msg = "    - replacing #{value.count} values "
+                options[:locally] ? print_dotted( msg ) : print( msg )
+                if( value.count > 0 )
+
+                  # download file if necessary
+                  if options[:locally]
+                    tmp_filename = target_filename
+                  else
+                    tmp_filename = target_filename+".tmp"
+                    print( " download" )
+                    get "#{path}#{target_filename}", tmp_filename
+                    print( " ("+"OK".green+")")
                   end
-                  options[:locally] ? run_locally( "#{cmd}" ) : run( "#{cmd}" )
-                }
-                puts( " OK".green )
+
+                  text = File.read(tmp_filename)
+                  value.each { |search,replace|
+                    text = text.gsub( "#{search}", "#{replace}" )
+                  }
+                  File.open(tmp_filename, "w") {|file| file.write(text) }
+
+                  # upload and remove temporary file
+                  if options[:locally]
+                    puts( " OK".green )
+                  else
+                    print( " upload" )
+                    run( "if [ -f #{target_filename} ]; then rm #{target_filename}; fi;" )
+                    upload( tmp_filename, "#{path}#{target_filename}" )
+                    run_locally( "rm #{tmp_filename}" )
+                    puts( " ("+"OK".green+")")
+                  end
+                end
               else
                 puts( "    - '#{operation}' operation is not supported".red )
             end
