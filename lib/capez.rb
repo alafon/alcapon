@@ -218,7 +218,7 @@ namespace :capez do
     task :init_shared, :roles => :web do
       puts( "--> Creating eZ Publish var directories" )
       print_dotted( "    - var " )
-      run( "mkdir #{shared_path}/var" )
+      run( "mkdir -p #{shared_path}/var" )
       puts( " OK".green )
 
       print_dotted( "    - var/storage" )
