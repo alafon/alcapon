@@ -117,7 +117,7 @@ namespace :capez do
 
       unless !(file_changes = get_file_changes) then
 
-        path = options[:locally] ? "" : "#{latest_release}/"
+        path = options[:locally] ? "" : fetch( :latest_release )
 
         changes = 0
         renames = 0
@@ -140,7 +140,7 @@ namespace :capez do
           if operations.has_key?("rename")
             if( target_filename != operations['rename'] )
               target_filename = operations['rename']
-              cmd = "if [ -f #{path}#{filename} ]; then cp #{path}#{filename} #{path}#{target_filename}; fi;"
+              cmd = "if [ -f #{path}/#{filename} ]; then cp #{path}/#{filename} #{path}/#{target_filename}; fi;"
               options[:locally] ? run_locally( "#{cmd}" ) : run( "#{cmd}" )
               renames += 1
             else
@@ -161,7 +161,7 @@ namespace :capez do
                     tmp_filename = target_filename
                   else
                     tmp_filename = target_filename+".tmp"
-                    get "#{path}#{target_filename}", tmp_filename
+                    get "#{path}/#{target_filename}", tmp_filename
                   end
 
                   text = File.read(tmp_filename)
@@ -174,7 +174,7 @@ namespace :capez do
                   # upload and remove temporary file
                   if !options[:locally]
                     run( "if [ -f #{target_filename} ]; then rm #{target_filename}; fi;" )
-                    upload( tmp_filename, "#{path}#{target_filename}" )
+                    upload( tmp_filename, "#{path}/#{target_filename}" )
                     run_locally( "rm #{tmp_filename}" )
                   end
                 end
