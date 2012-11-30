@@ -41,6 +41,8 @@ end
 files = {
   "Capfile" => unindent(<<-FILE),
     set :alcapon_path, \"#{alcapon_path}\"
+    set :ezpublish_version, 4
+
     load 'deploy' if respond_to?(:namespace) # cap2 differentiator
     Dir['vendor/gems/*/recipes/*.rb','vendor/plugins/*/recipes/*.rb'].each { |plugin| load(plugin) }
 

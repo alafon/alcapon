@@ -1,6 +1,20 @@
-load_paths.push File.expand_path('../', __FILE__)
-load 'db.rb'
 require 'colored'
+
+load_paths.push File.expand_path('../', __FILE__)
+load "utils"
+
+if( fetch( :ezpublish_version, nil ) == nil )
+  alcapon_message( "I am now able to manage versions 4 & 5 of eZ Publish but you
+          have to set :ezpublish_version
+          - in your Capfile like this : set :ezpublish_version, <ezpublish_version>
+          - as a command line option : -S ezpublish_version=<ezpublish_version>
+          where <ezpublish_version> can be either 4 or 5." )
+  abort
+else
+  fetch(:ezpublish_version) == 4 || fetch(:ezpublish_version) == 5 || abort( "Version #{ezpublish_version} not supported".red )
+  load "db"
+  load "ezpublish#{ezpublish_version}"
+end
 
 # This will simply do chmod g+w on all dir
 # See task :setup
@@ -41,10 +55,10 @@ before "deploy:finalize_update" do
   # Needed if you want to create extra shared directories under var/ with
   # set :shared_children, [ "var/something",
   #                         "var/something_else" ]
-  # Note that :shared_children creates a folder within shared which name is
+  # Note that :shared_children creates a folder within /shared which name is
   # the last path element (ie: something or something_else) => that's why
-  # we cannot use it to create siteaccess storages (var/siteaccess/storage)
-  run( "mkdir #{latest_release}/var" )
+  # we cannot use it to create siteaccess' storage folder (var/siteaccess/storage)
+  run( "mkdir -p #{latest_release}/#{ezp_legacy_path('var')}" )
 end
 
 after "deploy:finalize_update" do
@@ -154,7 +168,7 @@ namespace :capez do
               when 'rename'
               when 'replace'
 
-                if( value.count > 0 )
+                if( value.count > 0 && !dry_run)
 
                   # download file if necessary
                   if options[:locally]
@@ -228,7 +242,7 @@ namespace :capez do
       puts( "\n--> Clearing caches #{'with --purge'.red if cache_purge}" )
       cache_list.each { |cache_tag|
         print_dotted( "#{cache_tag}" )
-        capture "cd #{current_path} && sudo -u #{webserver_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        capture "cd #{current_path}/#{ezpublish_legacy} && sudo -u #{webserver_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
         puts( " OK".green )
       }
     end
@@ -268,15 +282,15 @@ namespace :capez do
       # creates a storage dir for elements specified by :storage_directories
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
-        run( "mkdir #{latest_release}/var/#{sd}" )
+        run( "mkdir #{latest_release}/" + ezp_legacy_path( "var/#{sd}" ) )
         puts( " OK".green )
       }
 
       # makes sure the webserver can write into var/
-      run( "chmod -R g+w #{latest_release}/var")
-      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/var")
+      run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
+      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/" + ezp_legacy_path( "var" ) )
       # needed even if we just want to run 'bin/php/ezpgenerateautoloads.php' with --extension
-      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/autoload")
+      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/" + ezp_legacy_path( "autoload" ) )
     end
 
     desc <<-DESC
@@ -286,17 +300,17 @@ namespace :capez do
       puts( "\n--> Symlinks" )
 
       print_dotted( "var/storage" )
-      run( "ln -s #{shared_path}/var/storage #{latest_release}/var/storage" )
+      run( "ln -s #{shared_path}/var/storage #{latest_release}/" + ezp_legacy_path( "var/storage" ) )
       puts( " OK".green )
 
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
-        run( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/var/#{sd}/storage", :as => webserver_user )
+        run( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/" + ezp_legacy_path( "var/#{sd}/storage" ), :as => webserver_user )
         #run( "chmod -h g+w #{latest_release}/var/#{sd}/storage")
         puts( " OK".green )
       }
 
-      run( "chmod -R g+w #{latest_release}/var")
+      run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
       run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{shared_path}/var")
     end
 
@@ -317,7 +331,7 @@ namespace :capez do
         exclude_string << "--exclude '#{item}' "
       }
 
-      run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* var/" )
+      run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* " + ezp_legacy_path( "var/" ) )
     end
 
     desc <<-DESC
@@ -338,7 +352,7 @@ namespace :capez do
       }
 
       try_sudo( "chown -R #{user}:#{webserver_user} #{shared_path}/var/*" )
-      run_locally( "rsync -az #{exclude_string} var/* #{user}@#{shared_host}:#{shared_path}/var/ " )
+      run_locally( "rsync -az #{exclude_string} #{ezp_legacy_path('var')}/* #{user}@#{shared_host}:#{shared_path}/var/ " )
       try_sudo( "chown -R #{webserver_user} #{shared_path}/var/*" )
       try_sudo( "chmod -R ug+rwx #{shared_path}/var/*" )
     end
@@ -359,7 +373,7 @@ namespace :capez do
         puts( "\n--> eZ Publish autoloads " )
         autoload_list.each { |autoload|
           print_dotted( "#{autoload}" )
-          capture( "cd #{latest_release} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+          capture( "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
           puts( " OK".green )
         }
       end
@@ -446,29 +460,4 @@ namespace :capez do
       end
   end
 
-
-end
-
-def print_dotted( message, options={} )
-  defaults_options = { :eol => false,
-                       :sol => false,
-                       :max_length => 40,
-                       :eol_msg => false }
-
-  options = defaults_options.merge( options )
-  message = "#{message} " + "." * [0,options[:max_length]-message.length-1].max
-
-  if options[:sol]
-    message = "\n#{message}"
-  end
-
-  if options[:eol_msg]
-    message += " #{options[:eol_msg]}"
-  end
-
-  if options[:eol]
-    puts message
-  else
-    print message
-  end
 end
