@@ -139,6 +139,9 @@ files = {
     # If not set, permissions remain unchanged
     #set :shared_children_group, "#{webserver_group}"
 
+    # eZ Publish 5 only:  assets configuration (default is 'web')
+    #set :ezp5_assets_path, 'web'
+
     # Which autoloads to generate. By default, regenerates extensions and
     # kernel-override autoloads
     # Possible values : see bin/php/ezpgenerateautoloads.php --help
