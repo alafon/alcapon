@@ -12,6 +12,8 @@ it on a preproduction environment before going further. Please also do read the
 
 ### 0.4.x
 
+ - added in 0.4.1 : downloaded files are hashed so that they can be downloaded
+   somewhere there's no eZ Publish installed
  - added eZ Publish 5.x support for ezpublish_legacy. This means that version
    of eZ Publish must be known by alcapon. You can either set ezpublish_version
    (accepted values are 4 or 5) in your Capfile or add `-S ezpublish_version=4`
