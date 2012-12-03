@@ -1,6 +1,7 @@
 load_paths.push File.expand_path('../', __FILE__)
 load 'db.rb'
 require 'colored'
+require 'md5'
 
 # This will simply do chmod g+w on all dir
 # See task :setup
@@ -161,6 +162,7 @@ namespace :capez do
                     tmp_filename = target_filename
                   else
                     tmp_filename = target_filename+".tmp"
+                    tmp_filename = MD5.new( tmp_filename ).to_s
                     get "#{path}#{target_filename}", tmp_filename
                   end
 
