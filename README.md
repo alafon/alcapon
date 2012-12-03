@@ -10,6 +10,14 @@ it on a preproduction environment before going further. Please also do read the
 
 ## Changelog
 
+### 0.4.x
+
+ - added eZ Publish 5.x support for ezpublish_legacy. This means that version
+   of eZ Publish must be known by alcapon. You can either set ezpublish_version
+   (accepted values are 4 or 5) in your Capfile or add `-S ezpublish_version=4`
+   or `-S ezpublish_version=5` after your command line call, like this :
+   cap production deploy -S ezpublish_version=5
+
 ### 0.3.x
 
  - added the possibility to trigger rename and in-file replace operations

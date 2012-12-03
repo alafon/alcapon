@@ -279,6 +279,11 @@ namespace :capez do
     task :init_release, :roles => :web do
       puts( "\n--> Release directories" )
 
+      if( ezp5? )
+        run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/ezpublish/{cache,logs,config} web" )
+        run( "chmod -R g+wx #{latest_release}/ezpublish/{cache,logs} web" )
+      end
+
       # creates a storage dir for elements specified by :storage_directories
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
