@@ -33,10 +33,10 @@ before "deploy:setup" do
 end
 
 after "deploy:setup", :roles => :web do
-  puts( " OK".green )
+  capez_puts_done
   print_dotted( "--> Fixing permissions on deployment directory" )
   try_sudo( "chown -R #{user} #{deploy_to}" ) # if not code checkout cannot be done :/
-  puts( " OK".green )
+  capez_puts_done
   capez.var.init_shared
 end
 
@@ -52,7 +52,7 @@ after "deploy:update_code" do
 end
 
 before "deploy:finalize_update" do
-  puts( " OK".green )
+  capez_puts_done
   # Needed if you want to create extra shared directories under var/ with
   # set :shared_children, [ "var/something",
   #                         "var/something_else" ]
@@ -76,7 +76,7 @@ before "deploy:create_symlink" do
 end
 
 after "deploy:create_symlink" do
-  puts( " OK".green )
+  capez_puts_done
 end
 
 # Default behavior overrides
@@ -230,16 +230,16 @@ namespace :capez do
       puts( "--> Creating eZ Publish var directories" )
       print_dotted( "var " )
       run( "mkdir -p #{shared_path}/var" )
-      puts( " OK".green )
+      capez_puts_done
 
       print_dotted( "var/storage" )
       run( "mkdir -p #{shared_path}/var/storage" )
-      puts( " OK".green )
+      capez_puts_done
 
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
         run( "mkdir -p #{shared_path}/var/#{sd}/storage" )
-        puts( " OK".green )
+        capez_puts_done
       }
       run( "chmod -R g+w #{shared_path}/var")
       run( "chown -R #{fetch(:webserver_group,:user)} #{shared_path}/var")
@@ -254,22 +254,34 @@ namespace :capez do
       puts( "\n--> Release directories" )
 
       if( ezp5? )
-        run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/ezpublish/{cache,logs,config} web" )
-        run( "chmod -R g+wx #{latest_release}/ezpublish/{cache,logs} web" )
+        folders_path = [ "ezpublish/cache", "ezpublish/config", "ezpublish/logs", "#{fetch('ezp5_assets_path')}" ]
+        folders_path.each{ |fp|
+          print_dotted( "#{fp}" )
+          run( "mkdir -p #{latest_release}/#{fp}")
+          run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/#{fp}" )
+          run( "chmod -R g+wx #{latest_release}/#{fp}" )
+          capez_puts_done
+        }
       end
 
       # creates a storage dir for elements specified by :storage_directories
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
         run( "mkdir #{latest_release}/" + ezp_legacy_path( "var/#{sd}" ) )
-        puts( " OK".green )
+        capez_puts_done
       }
 
       # makes sure the webserver can write into var/
       run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
       run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/" + ezp_legacy_path( "var" ) )
+
       # needed even if we just want to run 'bin/php/ezpgenerateautoloads.php' with --extension
-      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/" + ezp_legacy_path( "autoload" ) )
+      # autoload seems to be mandatory for "old" version such as 4.0, 4.1, ...
+      print_dotted( ezp_legacy_path( "autoload" ) )
+      autoload_path = File.join( latest_release, ezp_legacy_path( 'autoload' ) )
+      run( "if [ ! -d #{autoload_path} ]; then mkdir -p #{autoload_path}; fi;" )
+      capez_puts_done
+      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{autoload_path}" )
     end
 
     desc <<-DESC
@@ -280,13 +292,13 @@ namespace :capez do
 
       print_dotted( "var/storage" )
       run( "ln -s #{shared_path}/var/storage #{latest_release}/" + ezp_legacy_path( "var/storage" ) )
-      puts( " OK".green )
+      capez_puts_done
 
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
         run( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/" + ezp_legacy_path( "var/#{sd}/storage" ), :as => webserver_user )
         #run( "chmod -h g+w #{latest_release}/var/#{sd}/storage")
-        puts( " OK".green )
+        capez_puts_done
       }
 
       run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
@@ -347,13 +359,13 @@ namespace :capez do
     task :generate do
       if autoload_list.count == 0
         print_dotted( "--> eZ Publish autoloads (disabled)", :sol => true )
-        puts( " OK".green )
+        capez_puts_done
       else
         puts( "\n--> eZ Publish autoloads " )
         autoload_list.each { |autoload|
           print_dotted( "#{autoload}" )
           capture( "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
-          puts( " OK".green )
+          capez_puts_done
         }
       end
     end

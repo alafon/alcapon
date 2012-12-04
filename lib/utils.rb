@@ -3,6 +3,10 @@ def unindent(string)
   string.strip.gsub(/^#{indentation}/, "")
 end
 
+def capez_puts_done
+  puts '✔'.green
+end
+
 def print_dotted( message, options={} )
   defaults_options = { :eol => false,
                        :sol => false,

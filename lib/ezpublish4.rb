@@ -27,7 +27,7 @@ namespace :capez do
       cache_list.each { |cache_tag|
         print_dotted( "#{cache_tag}" )
         capture "cd #{current_path}/#{ezp_legacy_path} && sudo -u #{webserver_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
-        puts( " OK".green )
+        capez_puts_done
       }
     end
   end

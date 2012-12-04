@@ -139,8 +139,21 @@ files = {
     # If not set, permissions remain unchanged
     #set :shared_children_group, "#{webserver_group}"
 
-    # eZ Publish 5 only:  assets configuration (default is 'web')
+    # eZ Publish 5 only
+
+    # assets configuration (default is 'web')
     #set :ezp5_assets_path, 'web'
+
+    # used by the console with --env=<env>
+    set :ezp5_env, 'prod'
+
+    # used by ezpublish:configure to generate ezp5 configuration files based on the ezp4 ones
+    #set :ezp5_siteaccess_groupname, 'ezflow_site'
+    #set :ezp5_admin_siteaccess, 'ezflow_site_admin'
+
+    # Set this to true if you want capez:settings:configure to be executed every time
+    # the application is deployed
+    set :ezp5_regenerate_config, false
 
     # Which autoloads to generate. By default, regenerates extensions and
     # kernel-override autoloads
