@@ -254,7 +254,7 @@ namespace :capez do
       puts( "\n--> Release directories" )
 
       if( ezp5? )
-        folders_path = [ "ezpublish/cache", "ezpublish/config", "ezpublish/logs", "#{fetch('ezp5_assets_path')}" ]
+        folders_path = [ "ezpublish/cache", "ezpublish/config", "ezpublish/logs", "#{fetch('ezp5_assets_path','web')}" ]
         folders_path.each{ |fp|
           print_dotted( "#{fp}" )
           run( "mkdir -p #{latest_release}/#{fp}")
