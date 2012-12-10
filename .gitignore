@@ -6,3 +6,4 @@ backups/
 config/
 Capfile
 *.sublime-*
+alcapon-*.gem
