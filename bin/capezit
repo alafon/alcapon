@@ -55,7 +55,7 @@ files = {
   "#{alcapon_path}/config/deploy.rb" => unindent(<<-FILE),
     # Comment this if you don't want to use a multistage setup
     set :stages, %w(devel production )
-    set :default_stage, "devel"
+    #set :default_stage, "devel"
     require 'capistrano/ext/multistage'
 
     set :application, "myapp"
