@@ -42,10 +42,10 @@ namespace :capez do
       Install assets (ezp5 only)
     DESC
     task :install do
-
+      print_dotted( "\n--> Generating web assets in #{fetch('ezp5_assets_path','web')}" )
       capture( "cd #{latest_release} && sudo -u #{webserver_user} php ezpublish/console assets:install --symlink #{fetch('ezp5_assets_path','web')}" )
       capture( "cd #{latest_release} && sudo -u #{webserver_user} php ezpublish/console ezpublish:legacy:assets_install --symlink #{fetch('ezp5_assets_path','web')}" )
-
+      capez_puts_done
     end
   end
 
@@ -54,13 +54,13 @@ namespace :capez do
       Generate yml (ezp5) based on ini (ezp4)
     DESC
     task :configure do
-
+      print_dotted( "\n--> Generating ezp5 configuration files from ezp4 ones" )
       if( fetch('ezp5_siteaccess_groupname',false) != false && fetch('ezp5_admin_siteaccess',false) != false )
         capture( "cd #{latest_release} && sudo -u #{webserver_user} php ezpublish/console ezpublish:configure --env=#{fetch('ezp5_env','prod')} #{ezp5_siteaccess_groupname} #{ezp5_admin_siteaccess}" )
       else
         abort( "Since version 0.4.3, you need to set ezp5_siteaccess_groupname & ezp5_admin_siteaccess".red )
       end
-
+      capez_puts_done
     end
 
   end
