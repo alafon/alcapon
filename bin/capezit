@@ -168,11 +168,6 @@ files = {
     set :database_passd, "dbpasswd"
     set :database_name, "dbname"
 
-    # Not implemented
-    set :ezpublish_separated_core, false
-    set :ezpublish_base, "community"
-    set :ezpublish_version, "2012.5"
-
     # Check-list (used by cap setup:check)
     depend :remote, :command, "php"
     depend :remote, :match, "php -r \\"echo(version_compare(PHP_VERSION,'5.2.14')?'ok':'ko');\\"", "ok"
