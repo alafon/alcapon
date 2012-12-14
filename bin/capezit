@@ -137,7 +137,7 @@ files = {
 
     # Changes the group of shared_children items (by default, webserver_group is used)
     # If not set, permissions remain unchanged
-    #set :shared_children_group, "#{webserver_group}"
+    #set :shared_children_group, "\#{webserver_group}"
 
     # eZ Publish 5 only
 
