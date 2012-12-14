@@ -242,7 +242,7 @@ namespace :capez do
         capez_puts_done
       }
       run( "chmod -R g+w #{shared_path}/var")
-      run( "chown -R #{fetch(:webserver_group,:user)} #{shared_path}/var")
+      run( "chown -R #{fetch(:webserver_group,user)} #{shared_path}/var")
     end
 
 
@@ -258,7 +258,7 @@ namespace :capez do
         folders_path.each{ |fp|
           print_dotted( "#{fp}" )
           run( "mkdir -p #{latest_release}/#{fp}")
-          run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/#{fp}" )
+          run( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{latest_release}/#{fp}" )
           run( "chmod -R g+wx #{latest_release}/#{fp}" )
           capez_puts_done
         }
@@ -273,7 +273,7 @@ namespace :capez do
 
       # makes sure the webserver can write into var/
       run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
-      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/" + ezp_legacy_path( "var" ) )
+      run( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{latest_release}/" + ezp_legacy_path( "var" ) )
 
       # needed even if we just want to run 'bin/php/ezpgenerateautoloads.php' with --extension
       # autoload seems to be mandatory for "old" version such as 4.0, 4.1, ...
@@ -281,7 +281,7 @@ namespace :capez do
       autoload_path = File.join( latest_release, ezp_legacy_path( 'autoload' ) )
       run( "if [ ! -d #{autoload_path} ]; then mkdir -p #{autoload_path}; fi;" )
       capez_puts_done
-      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{autoload_path}" )
+      run( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{autoload_path}" )
     end
 
     desc <<-DESC
@@ -302,7 +302,7 @@ namespace :capez do
       }
 
       run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
-      run( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{shared_path}/var")
+      run( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{shared_path}/var")
     end
 
     desc <<-DESC
