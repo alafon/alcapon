@@ -110,6 +110,7 @@ files = {
     # Prevents you from cloning the whole rep. each deploy but your remote servers
     # must be able to get connected to your scm server
     set :deploy_via, :remote_cache
+    set :copy_exclude, [ '.git' ]
 
     # Your Primary HTTP server
     # (Use config/deploy/*.rb files instead if you need a multisage setup)
