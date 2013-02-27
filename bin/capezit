@@ -187,7 +187,7 @@ files = {
 
     # Check-list (used by cap setup:check)
     depend :remote, :command, "php"
-    depend :remote, :match, "php -r \\"echo(version_compare(PHP_VERSION,'5.2.14')?'ok':'ko');\\"", "ok"
+    depend :remote, :match, "php -r \\"echo(version_compare(PHP_VERSION,'5.3.3')?'ok':'ko');\\"", "ok"
     depend :remote, :match, "php -m | grep curl", "curl"
 
     # TODO
