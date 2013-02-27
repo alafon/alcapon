@@ -3,14 +3,19 @@
 require 'optparse'
 require 'fileutils'
 
-alcapon_path  = 'extension/alcapon'
-FileUtils.mkdir_p(File.join(alcapon_path,'config/deploy'))
+ezpublish_version  = nil
+alcapon_version = "0.4.6"
 
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename($0)} [path]"
 
   opts.on("-h", "--help", "Displays this help info") do
     puts opts
+    exit 0
+  end
+
+  opts.on("-v", "--version", "") do
+    puts "alcapon v#{alcapon_version}"
     exit 0
   end
 
@@ -38,10 +43,21 @@ def unindent(string)
   string.strip.gsub(/^#{indentation}/, "")
 end
 
+base = ARGV.shift
+ezpublish_version = ezpublish_version || ((File.directory? File.join(base, 'ezpublish')) ? 5 : 4)
+
+if ezpublish_version == 5
+    alcapon_path = 'ezpublish_legacy/extension/alcapon'
+else
+    alcapon_path = 'extension/alcapon'
+end
+
+FileUtils.mkdir_p(File.join(alcapon_path,'config/deploy'))
+
 files = {
   "Capfile" => unindent(<<-FILE),
     set :alcapon_path, \"#{alcapon_path}\"
-    set :ezpublish_version, 4
+    set :ezpublish_version, #{ezpublish_version}
 
     load 'deploy' if respond_to?(:namespace) # cap2 differentiator
     Dir['vendor/gems/*/recipes/*.rb','vendor/plugins/*/recipes/*.rb'].each { |plugin| load(plugin) }
@@ -218,8 +234,6 @@ files = {
 
   FILE
   }
-
-base = ARGV.shift
 
 files.each do |file, content|
   file = File.join(base, file)

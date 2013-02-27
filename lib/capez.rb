@@ -84,8 +84,7 @@ namespace :deploy do
 
   namespace :web do
     desc <<-DESC
-      Puts a html file somewhere in the documentroot
-      This file is displayed by a RewriteRule if it exists
+      Puts a html file somewhere in the documentroot. This file is displayed by a RewriteRule if it exists
     DESC
     task :disable do
     end
@@ -109,7 +108,7 @@ namespace :deploy do
 end
 
 
-namespace :capez do
+namespace :ezpublish do
   namespace :settings do
 
     def make_file_changes( options={} )
@@ -373,11 +372,11 @@ namespace :capez do
   # End of namespace :capez:autoloads
 
   # Should be transformed in a simple function (not aimed to be called as a Cap task...)
+  # Considers that your main git repo is at the top of your eZ Publish install
+  # If changes are detected, then ask the user to continue or not
   namespace :dev do
     desc <<-DESC
-      Checks changes on your local installation
-      Considers that your main git repo is at the top of your eZ Publish install
-      If changes are detected, then ask the user to continue or not
+      Check if there are any changes on your local installation based on what your scm knows
     DESC
     task :local_check do
       if "#{scm}" != "git" then
