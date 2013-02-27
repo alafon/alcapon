@@ -63,7 +63,9 @@ before "deploy:finalize_update" do
 end
 
 before "deploy", :roles => :web do
-  capez.dev.local_check
+  if fetch( :enable_local_check, false )
+    ezpublish.dev.local_check
+  end
   deploy.web.disable
 end
 

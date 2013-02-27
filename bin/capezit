@@ -200,6 +200,9 @@ files = {
   "#{alcapon_path}/config/deploy/devel.rb" => unindent(<<-FILE),
     # There you can override default settings for this specific environment
 
+    # Triggers local modification, based on the vcs used (only git supported)
+    set :enable_local_check, true
+
     set :branch, "dev"
     #role :web, "myapp.devserv", :primary => true           # Your Primary HTTP server
 
