@@ -37,7 +37,7 @@ after "deploy:setup", :roles => :web do
   print_dotted( "--> Fixing permissions on deployment directory" )
   try_sudo( "chown -R #{user} #{deploy_to}" ) # if not code checkout cannot be done :/
   capez_puts_done
-  capez.var.init_shared
+  ezpublish.var.init_shared
 end
 
 before "deploy:update_code" do
@@ -350,7 +350,7 @@ namespace :ezpublish do
     end
 
   end
-  # End of namespace :capez:var
+  # End of namespace ezpublish:var
 
   # TODO : cache management must be aware of cluster setup  namespace :autoloads do
   namespace :autoloads do
@@ -371,7 +371,7 @@ namespace :ezpublish do
       end
     end
   end
-  # End of namespace :capez:autoloads
+  # End of namespace ezpublish:autoloads
 
   # Should be transformed in a simple function (not aimed to be called as a Cap task...)
   # Considers that your main git repo is at the top of your eZ Publish install

@@ -6,14 +6,14 @@ after "deploy:finalize_update" do
   if fetch( :shared_children_group, false )
     shared_children.map { |d| run( "chgrp -R #{shared_children_group} #{shared_path}/#{d.split('/').last}") }
   end
-  capez.var.init_release
-  capez.var.link
-  capez.settings.deploy
-  capez.autoloads.generate
-  #capez.cache.clear
+  ezpublish.var.init_release
+  ezpublish.var.link
+  ezpublish.settings.deploy
+  ezpublish.autoloads.generate
+  #ezpublish.cache.clear
 end
 
-namespace :capez do
+namespace :ezpublish do
 
   namespace :cache do
     desc <<-DESC
