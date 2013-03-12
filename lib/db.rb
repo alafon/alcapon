@@ -62,6 +62,6 @@ namespace :db do
   end
 
   def get_backup_dir
-    return "extension/alcapon/backups/database"
+    return "#{ezp_legacy_path('extension/alcapon/backups/database')}"
   end
 end
