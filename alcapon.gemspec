@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'alcapon'
-  s.version     = '0.4.5'
+  s.version     = '0.4.6'
   s.add_dependency 'capistrano', '>= 2.12.0'
   s.add_dependency 'colored', '>= 1.2'
-  s.date        = '2012-12-14'
+  s.date        = '2013-03-12'
   s.summary     = "Enable Capistrano for your eZ Publish projects"
   s.description = "Capistrano is a utility and framework for executing commands in parallel on multiple remote machines, via SSH. This package gives you some tools to deploy your eZ Publish projects."
   s.authors     = ["Arnaud Lafon"]
