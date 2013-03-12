@@ -136,7 +136,7 @@ namespace :ezpublish do
         print( "progress " )
         file_changes.each { |filename,operations|
 
-          print( "." )
+          print( "." ) unless dry_run
 
           target_filename = filename
           renamed = false
@@ -159,7 +159,7 @@ namespace :ezpublish do
               when 'rename'
               when 'replace'
 
-                if( value.count > 0 && !dry_run)
+                if( value.count > 0 )
 
                   # download file if necessary
                   if options[:locally]
@@ -167,18 +167,33 @@ namespace :ezpublish do
                   else
                     tmp_filename = target_filename+".tmp"
                     tmp_filename = MD5.new( tmp_filename ).to_s
-                    get "#{path}/#{target_filename}", tmp_filename
+                    if dry_run
+                      puts "\n"
+                      puts "tmp_filename : #{tmp_filename}"
+                      puts "target_filepath : #{path}/#{target_filename}"
+                    else
+                      get "#{path}/#{target_filename}", tmp_filename
+                    end
                   end
 
-                  text = File.read(tmp_filename)
+                  if !dry_run
+                    text = File.read(tmp_filename)
+                  end
                   value.each { |search,replace|
                     changes += 1
-                    text = text.gsub( "#{search}", "#{replace}" )
+                    if dry_run
+                      puts "replace '#{search}' by '#{replace}'"
+                    else
+                      text = text.gsub( "#{search}", "#{replace}" )
+                    end
                   }
-                  File.open(tmp_filename, "w") {|file| file.write(text) }
+
+                  if !dry_run
+                    File.open(tmp_filename, "w") {|file| file.write(text) }
+                  end
 
                   # upload and remove temporary file
-                  if !options[:locally]
+                  if !options[:locally] && !dry_run
                     run( "if [ -f #{target_filename} ]; then rm #{target_filename}; fi;" )
                     upload( tmp_filename, "#{path}/#{target_filename}" )
                     run_locally( "rm #{tmp_filename}" )
