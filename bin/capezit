@@ -129,6 +129,7 @@ files = {
     # By default, this is the user as the one used to connect via SSH
     set :webserver_user, :user
     set :webserver_group, :user
+    set :php_user, :user
 
     # If true, will always turn your webserver offline
     # Requires a specific rewrite rule (see documentation)
@@ -170,6 +171,7 @@ files = {
 
     # Set this to true if you want capez:settings:configure to be executed every time
     # the application is deployed
+    # IMPORTANT: requires that the database is already created before it is run
     set :ezp5_regenerate_config, false
 
     # Which autoloads to generate. By default, regenerates extensions and
@@ -212,6 +214,7 @@ files = {
     # This is used for permissions related tasks
     #set :webserver_user, :user
     #set :webserver_group, :user
+    #set :php_user, :user
   FILE
 
   "#{alcapon_path}/config/deploy/production.rb" => unindent(<<-FILE)
@@ -226,6 +229,7 @@ files = {
     # This is used for permissions related tasks
     #set :webserver_user, :user
     #set :webserver_group, :user
+    #set :php_user, :user
 
     #set :file_changes, {
     #    'settings/override/site.ini.append.dist' => {

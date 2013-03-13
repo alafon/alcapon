@@ -380,7 +380,7 @@ namespace :ezpublish do
         puts( "\n--> eZ Publish autoloads " )
         autoload_list.each { |autoload|
           print_dotted( "#{autoload}" )
-          capture( "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{webserver_user} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+          capture( "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{fetch(:php_user,user)} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
           capez_puts_done
         }
       end
