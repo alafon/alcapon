@@ -274,8 +274,8 @@ namespace :ezpublish do
         folders_path.each{ |fp|
           print_dotted( "#{fp}" )
           run( "mkdir -p #{latest_release}/#{fp}")
-          try_sudo( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{latest_release}/#{fp}" )
           run( "chmod -R g+wx #{latest_release}/#{fp}" )
+          try_sudo( "chown -R #{fetch(:webserver_group,user)}:#{fetch(:webserver_group,user)} #{latest_release}/#{fp}" )
           capez_puts_done
         }
       end
