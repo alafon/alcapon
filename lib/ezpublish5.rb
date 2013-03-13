@@ -14,9 +14,9 @@ after "deploy:finalize_update" do
   ezpublish.var.link
   ezpublish.autoloads.generate
   ezpublish.settings.deploy
+  ezpublish.assets.install
   if ( fetch( :ezp5_regenerate_config, false ) )
     ezpublish.settings.configure
   end
-  ezpublish.assets.install
 end
 
