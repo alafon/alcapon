@@ -22,7 +22,7 @@ namespace :ezpublish do
     desc <<-DESC
       Install assets (ezp5 only)
     DESC
-    task :install do
+    task :install, :roles => :web do
       print_dotted( "\n--> Generating web assets in #{fetch('ezp5_assets_path','web')}" )
       capture( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console assets:install --symlink #{fetch('ezp5_assets_path','web')}" )
       capture( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console ezpublish:legacy:assets_install --symlink #{fetch('ezp5_assets_path','web')}" )
@@ -34,7 +34,7 @@ namespace :ezpublish do
     desc <<-DESC
       Generate yml (ezp5) based on ini (ezp4)
     DESC
-    task :configure do
+    task :configure, :roles => :web do
       print_dotted( "\n--> Generating ezp5 configuration files from ezp4 ones" )
       if( fetch('ezp5_siteaccess_groupname',false) != false && fetch('ezp5_admin_siteaccess',false) != false )
         capture( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console ezpublish:configure --env=#{fetch('ezp5_env','prod')} #{ezp5_siteaccess_groupname} #{ezp5_admin_siteaccess}" )

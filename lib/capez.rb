@@ -372,7 +372,7 @@ namespace :ezpublish do
     desc <<-DESC
       Generates autoloads (extensions and kernel overrides)
     DESC
-    task :generate do
+    task :generate, :roles => :web do
       if autoload_list.count == 0
         print_dotted( "--> eZ Publish autoloads (disabled)", :sol => true )
         capez_puts_done
