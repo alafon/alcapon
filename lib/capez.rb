@@ -1,5 +1,5 @@
 require 'colored'
-require 'md5'
+require 'digest/md5'
 
 load_paths.push File.expand_path('../', __FILE__)
 load "utils"
