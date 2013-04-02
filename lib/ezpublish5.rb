@@ -1,4 +1,4 @@
-puts "Running AlCapON for eZ Publish 5"
+puts "Running #{'AlCapON'.green} for #{'eZ Publish 5'.red}"
 
 set :ezp_legacy, "ezpublish_legacy"
 set :ezp_app, "ezpublish"
