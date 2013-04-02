@@ -10,11 +10,16 @@ namespace :ezpublish do
     # TODO : make it ezp5 aware
     task :clear, :roles => :web, :only => { :primary => true } do
       puts( "\n--> Clearing caches #{'with --purge'.red if cache_purge}" )
+      sudo_user = fetch(:php_user,user)
+      if sudo_user == 'root'
+        puts( "Sorry, refusing to run php scripts as root since eZ Publish won't let us do that".red )
+      else
       cache_list.each { |cache_tag|
         print_dotted( "#{cache_tag}" )
-        capture "cd #{current_path}/#{ezp_legacy_path} && sudo -u #{fetch(:php_user,user)} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        capture "cd #{current_path}/#{ezp_legacy_path} && sudo -u #{sudo_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
         capez_puts_done
       }
+      end
     end
   end
 
