@@ -166,7 +166,7 @@ namespace :ezpublish do
                     tmp_filename = target_filename
                   else
                     tmp_filename = target_filename+".tmp"
-                    tmp_filename = MD5.new( tmp_filename ).to_s
+                    tmp_filename = Digest::MD5.hexdigest( tmp_filename )
                     if dry_run
                       puts "\n"
                       puts "tmp_filename : #{tmp_filename}"

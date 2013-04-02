@@ -4,7 +4,7 @@ require 'optparse'
 require 'fileutils'
 
 ezpublish_version  = nil
-alcapon_version = "0.4.11"
+alcapon_version = "0.4.12"
 
 OptionParser.new do |opts|
   opts.banner = "Usage: #{File.basename($0)} [path]"
