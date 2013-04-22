@@ -16,7 +16,7 @@ namespace :ezpublish do
       else
       cache_list.each { |cache_tag|
         print_dotted( "#{cache_tag}" )
-        capture "cd #{current_path}/#{ezp_legacy_path} && sudo -u #{sudo_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        capture "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{sudo_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
         capez_puts_done
       }
       end
