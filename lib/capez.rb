@@ -84,6 +84,19 @@ end
 # Default behavior overrides
 namespace :deploy do
 
+  # We don't wan to use xargs rm -rf together with sudo as it's suggested by
+  # the default capistrano task
+  #
+  # Our implementation is not ok either because capture is run on the first
+  # server if another server has left the cluster in a certain meantime
+  task :cleanup, :except => { :no_release => true } do
+    count = fetch(:keep_releases, 4).to_i
+    releases = capture "#{try_sudo} ls -1dt #{releases_path}/* | tail -n +#{count + 1}"
+    releases.split( /\n/ ).each { |release_path|
+      try_sudo "rm -rf #{release_path}"
+    }
+  end
+
   namespace :web do
     desc <<-DESC
       Puts a html file somewhere in the documentroot. This file is displayed by a RewriteRule if it exists

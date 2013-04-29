@@ -1,0 +1,23 @@
+Cmnd_Alias SETUP_CMDS = /bin/mkdir -p /path/to/deploy_path*, \
+    /bin/chmod g+w /path/to/deploy_path*, \
+    /bin/chown -R deploy /path/to/deploy_path*, \
+    /bin/chown -R www-data /path/to/deploy_path*
+
+Cmnd_Alias DEPLOY_CMDS = /bin/chown -R www-data\:www-data /path/to/deploy_path/releases/*, \
+    /bin/rm -f /path/to/deploy_path/current,\
+    /bin/ln -s /path/to/deploy_path/*, \
+    /bin/ls -1dt /path/to/deploy_path/releases/*
+    /bin/chmod -R g+w /path/to/deploy_path/releases/*, \
+    /bin/chown -R www-data\:www-data /path/to/deploy_path/shared/var, \
+    /bin/rm -rf /path/to/deploy_path/releases/*
+
+Cmnd_Alias WARMUP_CMDS = /usr/bin/php bin/php/ezpgenerateautoloads.php*, \
+    /usr/bin/php bin/php/ezcache.php*, \
+    /usr/bin/php ezpublish/console assets\:install --symlink *, \
+    /usr/bin/php ezpublish/console ezpublish\:legacy\:assets_install --symlink *, \
+    /usr/bin/php ezpublish/console ezpublish\:configure*
+
+Runas_Alias RUNAS_APACHE = www-data
+
+DEPLOYMENT_USERS    ALL=(ALL) NOPASSWD: SETUP_CMDS, DEPLOY_CMDS
+DEPLOYMENT_USERS    ALL=(RUNAS_APACHE) NOPASSWD: WARMUP_CMDS
