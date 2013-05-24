@@ -39,7 +39,7 @@ namespace :db do
     run "mysqldump -u#{database_uname} -p#{database_passd} #{database_name} | gzip > #{file}"
     backup_dir_for_this_stage = File.join( get_backup_dir, "#{stage}" )
     create_backup_dir( backup_dir_for_this_stage )
-    get file, File.join( backup_dir_for_this_stage, filename )
+    get( file, File.join( backup_dir_for_this_stage, filename ), :via => :scp )
     run "rm #{file}"
   end
 

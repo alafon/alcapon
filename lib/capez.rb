@@ -185,7 +185,7 @@ namespace :ezpublish do
                       puts "tmp_filename : #{tmp_filename}"
                       puts "target_filepath : #{path}/#{target_filename}"
                     else
-                      get "#{path}/#{target_filename}", tmp_filename
+                      get( "#{path}/#{target_filename}", tmp_filename, :via => :scp )
                     end
                   end
 
@@ -208,7 +208,7 @@ namespace :ezpublish do
                   # upload and remove temporary file
                   if !options[:locally] && !dry_run
                     run( "if [ -f #{target_filename} ]; then rm #{target_filename}; fi;" )
-                    upload( tmp_filename, "#{path}/#{target_filename}" )
+                    upload( tmp_filename, "#{path}/#{target_filename}", :via => :scp )
                     run_locally( "rm #{tmp_filename}" )
                   end
                 end
