@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Arnaud Lafon"]
   s.email       = 'alcapon@arnaudlafon.com'
   s.homepage    = 'http://alafon.github.io/alcapon/'
+  s.licenses    = ['MIT']
 
   s.files = Dir.glob("{bin,lib}/**/*") + %w(README.md LICENSE.md)
 
