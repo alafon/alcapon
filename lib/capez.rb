@@ -326,7 +326,6 @@ namespace :ezpublish do
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
         try_sudo( "ln -s #{shared_path}/var/#{sd}/storage #{latest_release}/" + ezp_legacy_path( "var/#{sd}/storage" ), :as => webserver_user )
-        #run( "chmod -h g+w #{latest_release}/var/#{sd}/storage")
         capez_puts_done
       }
 
