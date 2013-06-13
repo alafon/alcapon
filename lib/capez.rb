@@ -271,7 +271,7 @@ namespace :ezpublish do
         capez_puts_done
       }
       run( "chmod -R g+w #{shared_path}/var")
-      try_sudo( "chown -R #{fetch(:webserver_group,user)} #{shared_path}/var")
+      try_sudo( "chgrp -R #{fetch(:webserver_group,user)} #{shared_path}/var")
     end
 
 
@@ -331,7 +331,6 @@ namespace :ezpublish do
       }
 
       try_sudo( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
-      try_sudo( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{shared_path}/var")
     end
 
     desc <<-DESC
