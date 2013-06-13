@@ -8,10 +8,16 @@ IMPORTANT: this package is currently under development, please consider testing
 it on a preproduction environment before going further. Please also do read the
 "Known bugs" section carefully.
 
+CAPISTRANO dependency : we recommand not to use Capistrano >= 2.15 which for some
+reason broke something (see #7)
+
 ## Changelog
 
 ### 0.4.x
 
+ - removed in 0.4.15 : the 'ezpublish:var:link' task does not call `chown`
+   anymore since we must not alter the permissions in shared ressources. They
+   must be controlled by ezpublish ONLY
  - added in 0.4.1 : downloaded files are hashed so that they can be downloaded
    somewhere there's no eZ Publish installed
  - added eZ Publish 5.x support for ezpublish_legacy. This means that version
