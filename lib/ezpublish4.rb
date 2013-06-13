@@ -1,4 +1,4 @@
-puts "Running AlCapON for eZ Publish 4"
+puts "Running #{'AlCapON'.green} for #{'eZ Publish 4'.red}"
 
 set :ezp_legacy, ""
 
@@ -26,7 +26,7 @@ namespace :ezpublish do
       puts( "\n--> Clearing caches #{'with --purge'.red if cache_purge}" )
       cache_list.each { |cache_tag|
         print_dotted( "#{cache_tag}" )
-        capture "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{fetch(:php_user,user)} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        run "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{fetch(:php_user,user)} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
         capez_puts_done
       }
     end
