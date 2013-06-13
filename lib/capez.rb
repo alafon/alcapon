@@ -271,7 +271,7 @@ namespace :ezpublish do
         capez_puts_done
       }
       run( "chmod -R g+w #{shared_path}/var")
-      try_sudo( "chgrp -R #{fetch(:webserver_group,user)} #{shared_path}/var")
+      try_sudo( "chgrp -R #{fetch(:webserver_group,:user)} #{shared_path}/var")
     end
 
 
@@ -288,7 +288,7 @@ namespace :ezpublish do
           print_dotted( "#{fp}" )
           run( "mkdir -p #{latest_release}/#{fp}")
           run( "chmod -R g+wx #{latest_release}/#{fp}" )
-          try_sudo( "chown -R #{fetch(:webserver_group,user)}:#{fetch(:webserver_group,user)} #{latest_release}/#{fp}" )
+          try_sudo( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/#{fp}" )
           capez_puts_done
         }
       end
@@ -302,7 +302,7 @@ namespace :ezpublish do
 
       # makes sure the webserver can write into var/
       run( "chmod -R g+w #{latest_release}/" + ezp_legacy_path( "var" ) )
-      try_sudo( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{latest_release}/" + ezp_legacy_path( "var" ) )
+      try_sudo( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{latest_release}/" + ezp_legacy_path( "var" ) )
 
       # needed even if we just want to run 'bin/php/ezpgenerateautoloads.php' with --extension
       # autoload seems to be mandatory for "old" version such as 4.0, 4.1, ...
@@ -310,7 +310,7 @@ namespace :ezpublish do
       autoload_path = File.join( latest_release, ezp_legacy_path( 'autoload' ) )
       run( "if [ ! -d #{autoload_path} ]; then mkdir -p #{autoload_path}; fi;" )
       capez_puts_done
-      try_sudo( "chown -R #{fetch(:webserver_user,user)}:#{fetch(:webserver_group,user)} #{autoload_path}" )
+      try_sudo( "chown -R #{fetch(:webserver_user,:user)}:#{fetch(:webserver_group,:user)} #{autoload_path}" )
     end
 
     desc <<-DESC
@@ -392,7 +392,7 @@ namespace :ezpublish do
         puts( "\n--> eZ Publish autoloads " )
         autoload_list.each { |autoload|
           print_dotted( "#{autoload}" )
-          run( "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{fetch(:php_user,user)} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
+          run( "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{fetch(:php_user,:user)} php bin/php/ezpgenerateautoloads.php --#{autoload}" )
           capez_puts_done
         }
       end
