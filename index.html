@@ -269,18 +269,73 @@ user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
 
         <p>See a sudo sample <a href="https://github.com/alafon/alcapon/blob/71451e076dbb0f99d693769429c9d2e5d7ef5d90/docs/sudo_sample">here</a></p>
 
+        <p>If you do not have sudo rights on the target env. you can also tell Capistrano not to use sudo by setting <b>use_sudo</b> to false in one of your config file (deploy.rb or deploy/env.rb) :
+            <pre><code>set :use_sudo, false</code></pre></p>
+
         <p>In order to setup your remote environements, simply run :
             <pre><code>cap deploy:setup</code></pre>
             This will create the needed folders on the remote servers.
         </p>
 
-        <p>If you want, you can run cap deploy:check to be sure that your servers are well configured and meet the requirements (currently, only a few of them are implemented)</p>
+        <p>If you want, you can run <b>cap deploy:check</b> to be sure that your servers are well configured and meet the requirements (currently, only a few of them are implemented)</p>
 
         <p>At the end, you just need to execute the deploy task :
             <pre><code>$ cap deploy</code></pre>
             And if you use the multistage ext. don't forget to specify to which environment you want to deploy you eZ Publish website :
             <pre><code>$ cap production deploy</code></pre>
         </p>
+
+        <h3><a name="settings_deployment">Settings Deployment</a></h3>
+
+        <p>You can run basic in-file replacements by setting the <b>file_changes</b>. It's a dead simple associative array which has to be set in a deploy/*.rb file (which defines a certain environment). Here is an example :
+
+            <pre><code>set :file_changes, {
+    'settings/override/site.ini.append.php' => {
+        'replace' => {
+            'SiteURL=devel-www.arnaudlafon.com' => 'SiteURL=www.arnaudlafon.com'
+        }
+    },
+    'settings/override/solr.ini.append.php' => {
+        'replace' => {
+            'SearchServerURI=http://localhost:8983/solr' => 'SearchServerURI=http://search-server:8983/solr'
+        }
+    }
+}</code></pre>
+        </p>
+
+        <p>Because, the system is very basic and only replace a text by another, I'd recommand to use placeholders instead of 'real' values (like in the example above) :
+            <pre><code>set :file_changes, {
+    'settings/override/site.ini.append.php' => {
+        'replace' => {
+            'SiteURL=@GLOBAL_SITE_URL@' => 'SiteURL=www.arnaudlafon.com',
+            'Database=@DATABASE_NAME@' => 'Database=ezpublish'
+        }
+    },
+    'settings/override/solr.ini.append.php' => {
+        'replace' => {
+            'SearchServerURI=@SEARCH_SERVER_URI@' => 'SearchServerURI=http://search-server:8983/solr'
+        }
+    }
+}</code></pre></p>
+
+        <p>You can also rename files with the 'rename' action :
+            <pre><code>set :file_changes, {
+    'settings/override/site.ini.append.dist' => {
+        'rename' => 'settings/override/site.ini.append.php',
+        'replace' => {
+            'SiteURL=@GLOBAL_SITE_URL@' => 'SiteURL=www.arnaudlafon.com',
+            'Database=@DATABASE_NAME@' => 'Database=ezpublish'
+        }
+    }
+}</code></pre>
+
+        <p>This is very handy because : <ul>
+                <li>you don't have to store password or sensitive data in your SCM anymore</li>
+                <li>you can have different configuration for each environment</li>
+            </ul>
+        </p>
+
+        <p><b>Note that</b> these actions are done every time you deploy your application but you can also run it manually using the <b>cap ezpublish:settings:deploy</b> task</p>
 
         <h3><a name="docs">Documentation</a></h3>
 
