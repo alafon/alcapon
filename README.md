@@ -9,7 +9,7 @@ it on a preproduction environment before going further. Please also do read the
 "Known bugs" section carefully.
 
 CAPISTRANO dependency : we recommand not to use Capistrano >= 2.15 which for some
-reason broke something (see alafon/alcapon#7 and https://github.com/alafon/capistrano/commit/e4f207b4b44e9fa5fa18ec4e85a7469d94570095)
+reason broke something (see https://github.com/alafon/alcapon/issues/7 and https://github.com/alafon/capistrano/commit/e4f207b4b44e9fa5fa18ec4e85a7469d94570095)
 
 ## Changelog
 
