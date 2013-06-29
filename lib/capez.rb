@@ -6,9 +6,11 @@ load "utils"
 
 if( fetch( :ezpublish_version, nil ) == nil )
   alcapon_message( "I am now able to manage versions 4 & 5 of eZ Publish but you
-          have to set :ezpublish_version
+          have to set :ezpublish_version and :ezpublish_subversion
           - in your Capfile like this : set :ezpublish_version, <ezpublish_version>
+                                        set :ezpublish_subversion, <ezpublish_subversion>
           - as a command line option : -S ezpublish_version=<ezpublish_version>
+                                       -S ezpublish_subverison=<ezpublish_subversion>
           where <ezpublish_version> can be either 4 or 5." )
   abort
 else

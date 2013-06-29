@@ -16,7 +16,11 @@ namespace :ezpublish do
       else
       cache_list.each { |cache_tag|
         print_dotted( "#{cache_tag}" )
-        capture "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{sudo_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        if( fetch( :ezpublish_subversion, nil ) == nil || fetch( :ezpublish_subversion ) == 0 )
+            capture "cd #{latest_release}/#{ezp_legacy_path} && sudo -u #{sudo_user} php bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        else
+            capture "cd #{latest_release}/ && sudo -u #{sudo_user} php ezpublish/console ezpublish:legacy:script bin/php/ezcache.php --clear-tag=#{cache_tag}#{' --purge' if cache_purge}"
+        end
         capez_puts_done
       }
       end
