@@ -30,7 +30,7 @@ namespace :db do
   desc <<-DESC
     Creates a backup from a remote database server
   DESC
-  task :backup, :roles => :db do
+  task :backup, :roles => :web, :only => { :primary => true } do
     filename = generate_backup_name
     file = File.join( "/tmp", filename )
       on_rollback do
