@@ -350,29 +350,33 @@ user ALL=(apache) NOPASSWD: DEPLOY_SHELLS</pre></code>
                 <th>comments</th>
             </tr>
             <tr>
-                <td>cap capez:autoloads:generate</td>
+                <td>cap ezpublish:autoloads:generate</td>
                 <td># Generates autoloads (extensions and kernel ove...</td>
             </tr>
             <tr>
-                <td>cap capez:cache:clear</td>
+                <td>cap ezpublish:cache:clear</td>
                 <td># Clear caches the way it is configured in ezpub...</td>
             </tr>
             <tr>
-                <td>cap capez:dev:local_check</td>
+                <td>cap ezpublish:dev:local_check</td>
                 <td># Checks if there are local changes or not (only...</td>
             </tr>
             <tr>
-                <td>cap capez:var:init_shared</td>
+                <td>cap ezpublish:var:init_shared</td>
                 <td># Creates the needed folder within your remote(s...</td>
             </tr>
             <tr>
-                <td>cap capez:var:link</td>
+                <td>cap ezpublish:var:link</td>
                 <td># Link .../shared/var into ../releases/[latest_r...</td>
             </tr>
             <tr>
-                <td>cap capez:var:sync</td>
+                <td>cap ezpublish:var:sync_to_local</td>
                 <td># Sync your var directory with a remote one</td>
             </tr>
+            <tr>
+                <td>cap ezpublish:var:sync_to_remote</td>
+                <td># Sync your remote var folder with local data</td>
+            </tr>            
         </table>
 
         <h3><a name="todolist">Todo List</a></h3>
