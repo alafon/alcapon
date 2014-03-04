@@ -11,6 +11,8 @@ it on a preproduction environment before going further. Please also do read the
 CAPISTRANO dependency : we recommand not to use Capistrano >= 2.15 which for some
 reason broke something (see https://github.com/alafon/alcapon/issues/7 and https://github.com/alafon/capistrano/commit/e4f207b4b44e9fa5fa18ec4e85a7469d94570095)
 
+AlCapON is not fully compatible with Capistrano 3.x, we are working on it and we recommand to stay on the 2.x branch
+
 ## Changelog
 
 ### 0.4.x
