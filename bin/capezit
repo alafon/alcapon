@@ -183,9 +183,13 @@ files = {
 
     # TODO : use yml files to manage database credentials securely
     # See http://www.simonecarletti.com/blog/2009/06/capistrano-and-database-yml/
+    # These settings are also use for remote database backup
+    set :database_server, "localhost"
+    set :database_name, "dbname"
     set :database_uname, "dbuname"
     set :database_passd, "dbpasswd"
-    set :database_name, "dbname"
+
+    # TODO : also provide backup for cluster setup (ezdbfile & co)
 
     # Check-list (used by cap setup:check)
     depend :remote, :command, "php"

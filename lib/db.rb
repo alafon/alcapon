@@ -33,13 +33,21 @@ namespace :db do
   task :backup, :roles => :web, :only => { :primary => true } do
     filename = generate_backup_name
     file = File.join( "/tmp", filename )
-      on_rollback do
-        run "rm #{file}"
-      end
-    run "mysqldump -u#{database_uname} -p#{database_passd} #{database_name} | gzip > #{file}"
     backup_dir_for_this_stage = File.join( get_backup_dir, "#{stage}" )
-    create_backup_dir( backup_dir_for_this_stage )
-    get( file, File.join( backup_dir_for_this_stage, filename ), :via => :scp )
+    on_rollback do
+      run "rm #{file}"
+    end
+    dump_result = nil
+    run "mysqldump -h#{database_server} -u#{database_uname} -p #{database_name} | gzip > #{file}" do |ch, stream, out|
+      ch.send_data "#{database_passd}\n" if out =~ /^Enter password:/
+      dump_result = out
+    end
+    if dump_result =~ /.*error.*1045/i
+      puts "Access denied on '#{database_server}' with user '#{database_uname}'".red
+    else
+      create_backup_dir( backup_dir_for_this_stage )
+      get( file, File.join( backup_dir_for_this_stage, filename ), :via => :scp )
+    end
     run "rm #{file}"
   end
 
