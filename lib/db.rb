@@ -31,7 +31,7 @@ namespace :db do
     Creates a backup from a remote database server
   DESC
   task :backup, :roles => :web, :only => { :primary => true } do
-    filename = generate_backup_name
+    filename = generate_backup_name( database_name )
     file = File.join( "/tmp", filename )
     backup_dir_for_this_stage = File.join( get_backup_dir, "#{stage}" )
     on_rollback do
@@ -57,12 +57,12 @@ namespace :db do
   task :backup_local do
     backup_dir = File.join( get_backup_dir, 'local' )
     create_backup_dir( backup_dir )
-    filename = File.join( backup_dir, generate_backup_name )
+    filename = File.join( backup_dir, generate_backup_name( database_name ) )
     system("mysqldump -u#{database_uname} -p#{database_passd} #{database_name} | gzip -9 > #{filename}")
   end
 
-  def generate_backup_name
-    return "#{Time.now.strftime '%Y-%m%d-%H%M%S'}.sql.gz"
+  def generate_backup_name(dbname)
+    return "#{Time.now.strftime '%Y-%m%d-%H%M%S'}-#{dbname}.sql.gz"
   end
 
   def create_backup_dir( path )
