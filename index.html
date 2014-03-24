@@ -137,7 +137,7 @@ require 'capistrano/ext/multistage'
 set :application, "myapp"
 set :repository,  "git@github.com:username/myapp.git"
 
-set :deploy_to, "/var/www/\#{application}"
+set :deploy_to, "/var/www/#{application}"
 # The user connecting your server through ssh
 set :user, "deploy"
 
