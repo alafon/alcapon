@@ -369,7 +369,7 @@ namespace :ezpublish do
         exclude_string << "--exclude '#{item}' "
       }
 
-      try_sudo( "chown -R #{user}:#{webserver_user} #{shared_path}/var/*" )
+      try_sudo( "chown -R #{user}:#{webserver_group} #{shared_path}/var/*" )
       run_locally( "rsync -az #{exclude_string} #{ezp_legacy_path('var')}/* #{user}@#{shared_host}:#{shared_path}/var/ " )
       try_sudo( "chown -R #{webserver_user} #{shared_path}/var/*" )
       try_sudo( "chmod -R ug+rwx #{shared_path}/var/*" )
