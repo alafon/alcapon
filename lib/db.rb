@@ -18,9 +18,10 @@ namespace :db do
       i += 1
     }
     file_to_import = Capistrano::CLI.ui.ask "Which one ?"
+    dbpasswd = fetch( :database_local_passd, "#{database_passd}" )
     if files.has_key?( file_to_import.to_i )
       filename = File.join( backup_dir, files[file_to_import.to_i] )
-      system( "gunzip < #{filename} | mysql -u#{database_uname} -p#{database_passd} #{database_name} ")
+      puts( "gunzip < #{filename} | mysql -u#{database_uname} -p#{dbpasswd} #{database_name} ")
     else
       abort "Bad index"
     end

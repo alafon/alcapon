@@ -165,7 +165,8 @@ files = {
     # used by the console with --env=<env>
     set :ezp5_env, 'prod'
 
-    # used by ezpublish:configure to generate ezp5 configuration files based on the ezp4 ones
+    # used by ezpublish:configure to generate ezp5 configuration files based on
+    # the ezp4 ones
     #set :ezp5_siteaccess_groupname, 'ezflow_site'
     #set :ezp5_admin_siteaccess, 'ezflow_site_admin'
 
@@ -188,6 +189,9 @@ files = {
     set :database_name, "dbname"
     set :database_uname, "dbuname"
     set :database_passd, "dbpasswd"
+    # The :database_local_passd parameter can be used when importing with
+    # `cap db:import_to_local` (ie: your local db password != database_passd)
+    #set :database_local_passd, "localpassword"
 
     # TODO : also provide backup for cluster setup (ezdbfile & co)
 
