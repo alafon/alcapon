@@ -21,7 +21,7 @@ namespace :db do
     dbpasswd = fetch( :database_local_passd, "#{database_passd}" )
     if files.has_key?( file_to_import.to_i )
       filename = File.join( backup_dir, files[file_to_import.to_i] )
-      puts( "gunzip < #{filename} | mysql -u#{database_uname} -p#{dbpasswd} #{database_name} ")
+      system( "gunzip < #{filename} | mysql -u#{database_uname} -p#{dbpasswd} #{database_name} ")
     else
       abort "Bad index"
     end
