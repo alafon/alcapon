@@ -296,7 +296,7 @@ namespace :ezpublish do
       # creates a storage dir for elements specified by :storage_directories
       storage_directories.each{ |sd|
         print_dotted( "var/#{sd}/storage" )
-        run( "mkdir #{latest_release}/" + ezp_legacy_path( "var/#{sd}" ) )
+        run( "mkdir -p #{latest_release}/" + ezp_legacy_path( "var/#{sd}" ) )
         capez_puts_done
       }
 
