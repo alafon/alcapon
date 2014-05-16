@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'alcapon'
-  s.version     = '0.4.16'
+  s.version     = '0.4.17'
   s.add_dependency( 'capistrano', '~> 2.14.0' )
   s.add_dependency( 'colored', '>= 1.2' )
   s.summary     = "Enable Capistrano for your eZ Publish projects"
