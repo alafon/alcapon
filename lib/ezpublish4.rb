@@ -12,6 +12,7 @@ after "deploy:finalize_update" do
   ezpublish.autoloads.generate
   if fetch( :ezp4_trigger_cache_clear, false )
     ezpublish.cache.clear
+  end
 end
 
 namespace :ezpublish do
