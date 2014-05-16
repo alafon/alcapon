@@ -1,6 +1,7 @@
 Cmnd_Alias SETUP_CMDS = /bin/mkdir -p /path/to/deploy_path*, \
     /bin/chmod g+w /path/to/deploy_path*, \
     /bin/chown -R deploy /path/to/deploy_path*, \
+    /bin/chgrp -R www-data /path/to/deploy_path*, \
     /bin/chown -R www-data /path/to/deploy_path*
 
 Cmnd_Alias DEPLOY_CMDS = /bin/chown -R www-data\:www-data /path/to/deploy_path/releases/*, \
