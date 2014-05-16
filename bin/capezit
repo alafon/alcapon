@@ -157,6 +157,19 @@ files = {
     # If not set, permissions remain unchanged
     #set :shared_children_group, "\#{webserver_group}"
 
+    # Which autoloads to generate. By default, regenerates extensions and
+    # kernel-override autoloads
+    # Possible values : see bin/php/ezpgenerateautoloads.php --help
+    # Feature can be disabled by using :
+    #set :autoload_list, []
+    set :autoload_list, [ "extension", "kernel-override" ]
+
+    # eZ Publish 4 only
+
+    # trigger ezpublish.cache.clear at the end of the deployment
+    # default: false
+    #set :ezp4_trigger_cache_clear, true
+
     # eZ Publish 5 only
 
     # assets configuration (default is 'web')
@@ -175,12 +188,6 @@ files = {
     # IMPORTANT: requires that the database is already created before it is run
     set :ezp5_regenerate_config, false
 
-    # Which autoloads to generate. By default, regenerates extensions and
-    # kernel-override autoloads
-    # Possible values : see bin/php/ezpgenerateautoloads.php --help
-    # Feature can be disabled by using :
-    #set :autoload_list, []
-    set :autoload_list, [ "extension", "kernel-override" ]
 
     # TODO : use yml files to manage database credentials securely
     # See http://www.simonecarletti.com/blog/2009/06/capistrano-and-database-yml/
