@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.summary     = "Enable Capistrano for your eZ Publish projects"
   s.description = "Capistrano is a utility and framework for executing commands in parallel on multiple remote machines, via SSH. This package gives you some tools to deploy your eZ Publish projects."
   s.authors     = ["Arnaud Lafon"]
-  s.email       = 'alcapon@arnaudlafon.com'
+  s.email       = 'alcapon@phasetwo.fr'
   s.homepage    = 'http://alafon.github.io/alcapon/'
   s.licenses    = ['MIT']
 
