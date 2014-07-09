@@ -188,6 +188,13 @@ files = {
     # IMPORTANT: requires that the database is already created before it is run
     set :ezp5_regenerate_config, false
 
+    # Parameters when ezdfs is used
+    #set :ezdfs_mount_path, "/path/to/your/(NFS|GlusterFS|Samba) mount"
+    #set :ezdfs_database_server, "localhost"
+    #set :ezdfs_database_name, "dbname"
+    #set :ezdfs_database_uname, "dbuname"
+    #set :ezdfs_database_passd, "dbpasswd"
+
 
     # TODO : use yml files to manage database credentials securely
     # See http://www.simonecarletti.com/blog/2009/06/capistrano-and-database-yml/

@@ -32,24 +32,12 @@ namespace :db do
     Creates a backup from a remote database server
   DESC
   task :backup, :roles => :web, :only => { :primary => true } do
-    filename = generate_backup_name( database_name )
-    file = File.join( "/tmp", filename )
-    backup_dir_for_this_stage = File.join( get_backup_dir, "#{stage}" )
-    on_rollback do
-      run "rm #{file}"
+
+    do_and_retrieve_backup( "#{database_server}", "#{database_name}", "#{database_uname}", "#{database_passd}" )
+    if fetch( :ezdfs_database_server, nil ) != nil
+      do_and_retrieve_backup( "#{ezdfs_database_server}", "#{ezdfs_database_name}", "#{ezdfs_database_uname}", "#{ezdfs_database_passd}" )
     end
-    dump_result = nil
-    run "mysqldump -h#{database_server} -u#{database_uname} -p #{database_name} | gzip > #{file}" do |ch, stream, out|
-      ch.send_data "#{database_passd}\n" if out =~ /^Enter password:/
-      dump_result = out
-    end
-    if dump_result =~ /.*error.*1045/i
-      puts "Access denied on '#{database_server}' with user '#{database_uname}'".red
-    else
-      create_backup_dir( backup_dir_for_this_stage )
-      get( file, File.join( backup_dir_for_this_stage, filename ), :via => :scp )
-    end
-    run "rm #{file}"
+
   end
 
   desc <<-DESC
@@ -72,5 +60,27 @@ namespace :db do
 
   def get_backup_dir
     return "#{ezp_legacy_path('extension/alcapon/backups/database')}"
+  end
+
+  def do_and_retrieve_backup( thisdbserver, thisdbname, thisdbuser, thisdbpass )
+    filename = generate_backup_name( thisdbname )
+    file = File.join( "/tmp", filename )
+    backup_dir_for_this_stage = File.join( get_backup_dir, "#{stage}" )
+    on_rollback do
+      run "rm #{file}"
+    end
+
+    dump_result = nil
+    run "mysqldump -h#{thisdbserver} -u#{thisdbuser} -p #{thisdbname} | gzip > #{file}" do |ch, stream, out|
+      ch.send_data "#{thisdbpass}\n" if out =~ /^Enter password:/
+      dump_result = out
+    end
+    if dump_result =~ /.*error.*1045/i
+      puts "Access denied on '#{thisdbserver}' with user '#{thisdbuser}'".red
+    else
+      create_backup_dir( backup_dir_for_this_stage )
+      get( file, File.join( backup_dir_for_this_stage, filename ), :via => :scp )
+    end
+    run "rm #{file}"
   end
 end

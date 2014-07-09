@@ -336,26 +336,38 @@ namespace :ezpublish do
       Sync your var directory with a remote one
     DESC
     task :sync_to_local, :roles => :web, :only => { :primary => true } do
-      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory FROM a remote one (current stage = #{stage}). Are you sure (y/N) ?"
+      puts "Cluster mode : " + (fetch( :ezdfs_mount_path, nil ) == nil ? "no".red : "yes".green )
+      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local storage directory FROM a remote one (current stage = #{stage}). Are you sure (y/N) ?"
       abort "Aborted" unless confirmation.downcase == 'y'
 
       shared_host = fetch( :shared_host, nil )
       abort "Please set 'shared_host'" if shared_host == nil
 
-      # TODO : make it configurable
-      exclude_string = ""
-      exclude_paths = [ "/cache", "/log", "/*/cache", "/*/log", "/autoload" ]
-      exclude_paths.each{ |item|
-        exclude_string << "--exclude '#{item}' "
-      }
-
-      run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* " + ezp_legacy_path( "var/" ) )
+      if fetch( :ezdfs_mount_path, nil ) == nil
+        # TODO : make it configurable
+        exclude_string = ""
+        exclude_paths = [ "/cache", "/log", "/*/cache", "/*/log", "/autoload" ]
+        exclude_paths.each{ |item|
+          exclude_string << "--exclude '#{item}' "
+        }
+        run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* " + ezp_legacy_path( "var/" ) )
+      else
+        puts "Syncing remote mount path (path = #{ezdfs_mount_path} on both side)".green
+        storage_directories.each{ |sd|
+          print_dotted( "var/#{sd}/storage" )
+          fullpath = "#{ezdfs_mount_path}/var/#{sd}/storage"
+          run_locally( "if [ ! -d #{fullpath} ]; then mkdir -p #{fullpath}; fi;" )
+          run_locally( "rsync -az #{user}@#{shared_host}:#{fullpath}/* #{fullpath}/" )
+          capez_puts_done
+        }
+      end
     end
 
     desc <<-DESC
       Sync your a remote var folder with local datas
     DESC
     task :sync_to_remote, :roles => :web, :only => { :primary => true } do
+      puts "Please note that this task is not eZDFS compliant...".red
       confirmation = Capistrano::CLI.ui.ask "You're about to sync your local var/ directory TO a remote one (current stage = #{stage}). Are you sure (y/N) ?"
       abort "Aborted" unless confirmation.downcase == 'y'
 
