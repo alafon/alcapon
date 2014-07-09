@@ -17,14 +17,25 @@ namespace :db do
       files[i] = value
       i += 1
     }
+
     file_to_import = Capistrano::CLI.ui.ask "Which one ?"
-    dbpasswd = fetch( :database_local_passd, "#{database_passd}" )
     if files.has_key?( file_to_import.to_i )
       filename = File.join( backup_dir, files[file_to_import.to_i] )
-      system( "gunzip < #{filename} | mysql -u#{database_uname} -p#{dbpasswd} #{database_name} ")
     else
       abort "Bad index"
     end
+
+    if fetch( :ezdfs_database_name, nil ) != nil && filename =~ /#{ezdfs_database_name}/i
+      thisdbname = fetch( :ezdfs_database_name )
+      thisdbuser = fetch( :ezdfs_database_uname )
+      thisdbpass = fetch( :ezdfs_database_passd )
+    else
+      thisdbname = database_name
+      thisdbuser = database_uname
+      thisdbpass = database_passd
+    end
+    thisdbpass = fetch( :database_local_passd, "#{database_passd}" )
+    system( "gunzip < #{filename} | mysql -u#{thisdbuser} -p#{thisdbpass} #{thisdbname} ")
   end
 
   # Should use :db as :roles
