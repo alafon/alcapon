@@ -3,7 +3,9 @@ namespace :db do
     Loads one of the backup made with the db:export:remote task
   DESC
   task :import_to_local do
-    confirmation = Capistrano::CLI.ui.ask "You are about to replace your local database by a remote backup (selected stage = #{stage}). Are you sure ? y/n (n)"
+    puts "You are about to replace your local database by a remote backup"
+    puts "Selected stage : " + "#{stage}".green
+    confirmation = Capistrano::CLI.ui.ask "Are you sure ? y/n (n)"
     if confirmation == "n" or confirmation == ""
       abort "Aborted"
     end
@@ -13,7 +15,11 @@ namespace :db do
     files = Hash.new
     i = 1
     backup_files.each { |value|
-      puts "#{i}: #{value}"
+      if fetch( :ezdfs_database_name, nil ) != nil && value =~ /#{ezdfs_database_name}/i
+        puts "#{i}: #{value} " + "[ezdfs database]".blue
+      else
+        puts "#{i}: #{value} " + "[content database]".green
+      end
       files[i] = value
       i += 1
     }
@@ -75,6 +81,7 @@ namespace :db do
 
   def do_and_retrieve_backup( thisdbserver, thisdbname, thisdbuser, thisdbpass )
     filename = generate_backup_name( thisdbname )
+    puts "Backing up database ["+thisdbname.green+"] to " + filename.green
     file = File.join( "/tmp", filename )
     backup_dir_for_this_stage = File.join( get_backup_dir, "#{stage}" )
     on_rollback do

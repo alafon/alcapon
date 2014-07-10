@@ -337,7 +337,9 @@ namespace :ezpublish do
     DESC
     task :sync_to_local, :roles => :web, :only => { :primary => true } do
       puts "Cluster mode : " + (fetch( :ezdfs_mount_path, nil ) == nil ? "no".red : "yes".green )
-      confirmation = Capistrano::CLI.ui.ask "You're about to sync your local storage directory FROM a remote one (current stage = #{stage}). Are you sure (y/N) ?"
+      puts "You're about to sync your local storage directory FROM a remote one"
+      puts "Selected stage : " + "#{stage}".green
+      confirmation = Capistrano::CLI.ui.ask "Are you sure (y/N) ?"
       abort "Aborted" unless confirmation.downcase == 'y'
 
       shared_host = fetch( :shared_host, nil )
@@ -352,7 +354,8 @@ namespace :ezpublish do
         }
         run_locally( "rsync -az #{exclude_string} #{user}@#{shared_host}:#{shared_path}/var/* " + ezp_legacy_path( "var/" ) )
       else
-        puts "Syncing remote mount path (path = #{ezdfs_mount_path} on both side)".green
+        puts "Syncing remote mount path"
+        puts "Path (on both side) : " + ezdfs_mount_path.green
         storage_directories.each{ |sd|
           print_dotted( "var/#{sd}/storage" )
           fullpath = "#{ezdfs_mount_path}/var/#{sd}/storage"
