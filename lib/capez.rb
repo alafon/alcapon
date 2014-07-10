@@ -336,9 +336,9 @@ namespace :ezpublish do
       Sync your var directory with a remote one
     DESC
     task :sync_to_local, :roles => :web, :only => { :primary => true } do
-      puts "Cluster mode : " + (fetch( :ezdfs_mount_path, nil ) == nil ? "no".red : "yes".green )
       puts "You're about to sync your local storage directory FROM a remote one"
       puts "Selected stage : " + "#{stage}".green
+      puts "Cluster mode : " + (fetch( :ezdfs_mount_path, nil ) == nil ? "no".red : "yes".green )
       confirmation = Capistrano::CLI.ui.ask "Are you sure (y/N) ?"
       abort "Aborted" unless confirmation.downcase == 'y'
 
