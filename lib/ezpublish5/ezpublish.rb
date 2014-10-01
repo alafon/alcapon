@@ -29,8 +29,8 @@ namespace :ezpublish do
     DESC
     task :install, :roles => :web do
       print_dotted( "\n--> Generating web assets in #{fetch('ezp5_assets_path','web')}" )
-      run( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console assets:install --symlink #{fetch('ezp5_assets_path','web')}" )
-      run( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console ezpublish:legacy:assets_install --symlink #{fetch('ezp5_assets_path','web')}" )
+      run( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console assets:install --env=#{fetch('ezp5_env','prod')} --symlink #{fetch('ezp5_assets_path','web')}" )
+      run( "cd #{latest_release} && sudo -u #{fetch(:php_user,user)} php ezpublish/console ezpublish:legacy:assets_install --env=#{fetch('ezp5_env','prod')} --symlink #{fetch('ezp5_assets_path','web')}" )
       capez_puts_done
     end
   end
