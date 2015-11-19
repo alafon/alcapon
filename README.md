@@ -11,12 +11,17 @@ it on a preproduction environment before going further. Please also do read the
 CAPISTRANO dependency : we recommand not to use Capistrano >= 2.15 which for some
 reason broke something (see https://github.com/alafon/alcapon/issues/7 and https://github.com/alafon/capistrano/commit/e4f207b4b44e9fa5fa18ec4e85a7469d94570095)
 
-AlCapON is not fully compatible with Capistrano 3.x, we are working on it and we recommand to stay on the 2.x branch
+AlCapON is not fully compatible with Capistrano 3.x, we are working on it and we recommand to stay on the 2.x branch.
+
+In addition, Capistrano 2.x and Capistrano 3.x can be installed on the same machine so if you update Capistrano to 3.x (because you need for other projects), simply create a simlink in any of your local PATH, to your 2.x bin executable. Exemple on a Mac setup :
+
+`/usr/local/bin/cap2 => /Library/Ruby/Gems/2.0.0/gems/capistrano-2.14.2/bin/cap`
 
 ## Changelog
 
 ### 0.4.x
 
+ - pin net-ssh to 2.9.2 (net-ssh 3.x requires Ruby 2.x and we don't want that restriction)
  - removed in 0.4.15 : the 'ezpublish:var:link' task does not call `chown`
    anymore since we must not alter the permissions in shared ressources. They
    must be controlled by ezpublish ONLY
