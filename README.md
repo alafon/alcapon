@@ -1,5 +1,19 @@
 # AlCapON : Enable Capistrano for your eZ Publish installations
 
+==============
+
+**DISCONTINUED** : with the *recent* move to Symfony Framework, AlCapOn is not required anymore to deploy eZ Publish websites.
+
+We recommend to use Capistrano v3 together with capistrano libs like `capistrano/composer` and `capistrano/symfony`.
+
+Placeholders formerly handled by AlCapOn can be managed in `ezpublish/config/parameters.yml.dist` with Incenteev which is included by default in Symfony. See https://github.com/Incenteev/ParameterHandler and use environment variable injection in your `config/xxxxxx.rb`.
+
+If you still need to handle eZ Publish Legacy parameters, then just manage them in your parameters.yml and inject them from the symfony stack using https://doc.ez.no/display/EZP/Legacy+configuration+injection
+
+Feel free to contact me at `alcapon` `at` `phasetwo.fr` if you need support.
+
+==============
+
 AlCapON is a simple recipe for Capistrano, the well-known deployment toolbox.
 It helps you dealing with simple task such as pushing your code to your
 webserver(s), clearing cache, etc.
